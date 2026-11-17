@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тренажёр кассы: пробей заказ</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Rubik:wght@400;500;600;700&display=swap">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root{--ink:#1C2422;--ink2:#284A41;--ink3:#3B5F55;--cream:#F7F4EC;--paper:#FFFDF8;--line:#DCD6C8;--tomato:#A5611B;--sun:#D4AD63;--muted:#5D6865;--soft:#CFD8D3;--ok:#2F7A4F;--bad:#B8341F;
+    --f:'Rubik',system-ui,-apple-system,Segoe UI,Arial,sans-serif;--fd:'Oswald',Arial,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:#16211E;overflow-x:hidden}
+  body{font-family:var(--f);color:var(--ink);background:var(--cream);min-height:100vh}
+  button,input{font-family:var(--f)}
+  .top{background:var(--ink);color:var(--cream);padding:12px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+  .top a{color:var(--soft);text-decoration:none;font-size:14px}
+  .top b{font-family:var(--fd);text-transform:uppercase;font-size:18px;letter-spacing:.5px}
+  .top .timer{margin-left:auto;font-family:var(--fd);font-size:20px;color:var(--sun);min-width:56px;text-align:right}
+  .wrap{max-width:1100px;margin:0 auto;padding:14px}
+  .task{background:var(--paper);border:2px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:12px;display:flex;gap:12px;align-items:flex-start}
+  .task .av{flex:none;width:44px;height:44px;border-radius:50%;background:var(--tomato);color:#fff;display:grid;place-items:center;font-family:var(--fd);font-size:18px}
+  .task .lv{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tomato);font-weight:700}
+  .task .say{font-size:17px;line-height:1.4;margin-top:4px;font-weight:500}
+  .task .hint{font-size:13px;color:var(--muted);margin-top:6px}
+  .levels{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+  .levels button{border:2px solid var(--line);background:var(--paper);border-radius:999px;padding:7px 12px;font-weight:600;font-size:13px;cursor:pointer;color:var(--ink)}
+  .levels button.on{background:var(--ink);border-color:var(--ink);color:var(--cream)}
+  .levels button .ok{color:var(--ok)}
+  .levels button.on .ok{color:#8fd3a8}
+  .grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+  @media(min-width:860px){.grid{grid-template-columns:380px minmax(0,1fr)}}
+  .check{background:var(--ink);color:var(--cream);border-radius:16px;padding:14px;display:flex;flex-direction:column;min-height:300px}
+  .otype{display:flex;gap:6px;margin-bottom:10px}
+  .otype button{flex:1;border:0;border-radius:10px;padding:9px 4px;background:var(--ink2);color:var(--soft);font-weight:600;font-size:13px;cursor:pointer}
+  .otype button.on{background:var(--sun);color:var(--ink)}
+  .lines{flex:1;overflow:auto;min-height:120px}
+  .line{display:flex;gap:8px;align-items:flex-start;padding:9px 0;border-bottom:1px dashed var(--ink3)}
+  .line .q{font-family:var(--fd);font-size:18px;color:var(--sun);min-width:26px}
+  .line .n{flex:1;font-size:14px}
+  .line .n small{display:block;color:var(--soft);font-size:12px;margin-top:2px}
+  .line .p{font-family:var(--fd);font-size:16px;white-space:nowrap}
+  .line .x{border:0;background:var(--ink3);color:var(--soft);border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:14px}
+  .empty{color:#9c9184;font-size:14px;padding:18px 0;text-align:center}
+  .tot{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--ink3);padding-top:10px;margin-top:8px}
+  .tot span{color:var(--soft);font-size:14px}
+  .tot b{font-family:var(--fd);font-size:30px;color:var(--sun)}
+  .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .btn{border:0;border-radius:12px;padding:13px 8px;font-weight:600;font-size:15px;cursor:pointer;background:var(--tomato);color:#fff}
+  .btn.ghost{background:var(--ink2);color:var(--cream)}
+  .btn.ok{background:var(--ok)}
+  .btn.wide{grid-column:1/-1}
+  .btn:disabled{opacity:.45;cursor:default}
+  .sheet .err{margin-top:10px}
+  .menu{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:12px}
+  .cats{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px}
+  .cats button{flex:none;border:2px solid var(--line);background:var(--cream);border-radius:10px;padding:9px 14px;font-weight:600;font-size:14px;cursor:pointer;color:var(--ink)}
+  .cats button.on{background:var(--tomato);color:#fff;border-color:var(--tomato)}
+  .items{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+  .item{border:0;border-radius:14px;padding:14px 10px;min-height:86px;text-align:left;cursor:pointer;background:var(--cream);border:2px solid var(--line);display:flex;flex-direction:column;justify-content:space-between;transition:transform .08s}
+  .item:active{transform:scale(.97)}
+  .item b{font-size:15px;line-height:1.25}
+  .item span{font-family:var(--fd);font-size:15px;color:var(--tomato);margin-top:6px}
+  .modal{position:fixed;inset:0;background:rgba(22,33,30,.6);display:none;align-items:flex-end;justify-content:center;z-index:30}
+  .modal.on{display:flex}
+  @media(min-width:860px){.modal{align-items:center}}
+  .sheet{background:var(--paper);width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:18px;max-height:90vh;overflow:auto;animation:up .25s ease}
+  @media(min-width:860px){.sheet{border-radius:20px}}
+  @keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+  .sheet h3{font-family:var(--fd);text-transform:uppercase;font-size:22px;margin-bottom:4px}
+  .sheet .sub{color:var(--muted);font-size:14px;margin-bottom:12px}
+  .grp{margin:12px 0 6px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+  .opts{display:flex;gap:8px;flex-wrap:wrap}
+  .opts button{flex:1;min-width:96px;border:2px solid var(--line);background:var(--cream);border-radius:12px;padding:11px 8px;font-weight:600;font-size:14px;cursor:pointer;color:var(--ink)}
+  .opts button.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+  .opts button small{display:block;font-weight:400;font-size:12px;opacity:.8;margin-top:2px}
+  .qty{display:flex;align-items:center;gap:14px;margin-top:6px}
+  .qty button{width:44px;height:44px;border-radius:12px;border:2px solid var(--line);background:var(--cream);font-size:22px;cursor:pointer}
+  .qty b{font-family:var(--fd);font-size:26px;min-width:30px;text-align:center}
+  .sheet .row{display:flex;gap:8px;margin-top:16px}
+  .sheet .row .btn{flex:1}
+  .pay{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .pay button{border:2px solid var(--line);background:var(--cream);border-radius:12px;padding:14px 6px;font-weight:600;cursor:pointer;color:var(--ink)}
+  .pay button.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+  .cash{margin-top:12px;display:none}
+  .cash.on{display:block}
+  .cash input{width:100%;border:2px solid var(--line);border-radius:12px;padding:13px;font-size:20px;font-family:var(--fd)}
+  .quick{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .quick button{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px;font-weight:600;cursor:pointer}
+  .change{margin-top:10px;font-size:16px}
+  .change b{font-family:var(--fd);font-size:24px;color:var(--ok)}
+  .err{color:var(--bad);font-size:13px;margin-top:6px;display:none}
+  .err.on{display:block}
+  .upsell{background:#FDF1D8;border-radius:12px;padding:12px;font-size:14px;line-height:1.45;margin-bottom:12px}
+  .res{text-align:center}
+  .res .big{font-family:var(--fd);font-size:72px;line-height:1;color:var(--tomato);margin-top:6px}
+  .res ul{list-style:none;text-align:left;margin:14px 0}
+  .res li{padding:8px 0;border-top:1px solid var(--line);font-size:14px;display:flex;gap:8px}
+  .res li i{font-style:normal;font-weight:700;min-width:18px}
+  .res li.g i{color:var(--ok)}.res li.b i{color:var(--bad)}
+  .receipt{background:#fff;border:1px dashed #c9bba5;border-radius:8px;padding:12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;text-align:left;margin:10px 0;white-space:pre-wrap;line-height:1.5}
+  .note{font-size:12px;color:var(--muted);text-align:center;margin:14px 0 6px}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px);background:var(--ink);color:var(--cream);padding:11px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.3s;z-index:60;pointer-events:none;max-width:90vw;text-align:center}
+  .toast.on{opacity:1;transform:translateX(-50%)}
+</style>
+</head>
+<body>
+<div class="top"><a href="index.html" id="back">‹ Назад</a><b>Тренажёр кассы</b><div class="timer" id="timer">0:00</div></div>
+<div class="wrap">
+  <div class="levels" id="levels"></div>
+  <div class="task"><div class="av">Г</div><div><div class="lv" id="tLv"></div><div class="say" id="tSay"></div><div class="hint" id="tHint"></div></div></div>
+  <div class="grid">
+    <div class="check">
+      <div class="otype" id="otype"><button data-t="t5">Стол 5</button><button data-t="t12">Стол 12</button><button data-t="bar">Бар</button></div>
+      <div class="lines" id="lines"></div>
+      <div class="tot"><span>Итого</span><b id="total">0 ₸</b></div>
+      <div class="acts">
+        <button class="btn ghost" id="upsellBtn">Предложить допродажу</button>
+        <button class="btn ghost" id="repeatBtn">Повторить заказ</button>
+        <button class="btn ghost wide" id="idBtn">Попросить документ</button>
+        <button class="btn wide" id="payBtn">Расчёт</button>
+      </div>
+    </div>
+    <div class="menu">
+      <div class="cats" id="cats"></div>
+      <div class="items" id="items"></div>
+    </div>
+  </div>
+  <p class="note">Учебный тренажёр в логике ресторанных кассовых систем (iiko, r_keeper и подобных). Меню и цены условные.</p>
+</div>
+
+<div class="modal" id="mItem"><div class="sheet" id="sItem"></div></div>
+<div class="modal" id="mPay"><div class="sheet" id="sPay"></div></div>
+<div class="modal" id="mRes"><div class="sheet" id="sRes"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var EMBED=/[?&]embed=1/.test(location.search)||window.self!==window.top;
+  if(EMBED){var bk=document.getElementById('back');if(bk)bk.style.display='none';}
+  var tg=(window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.initData)?window.Telegram.WebApp:null;
+  if(tg){try{tg.ready();tg.expand();tg.setHeaderColor('#1C2422');}catch(e){}}
+  function haptic(k){try{if(tg)tg.HapticFeedback.notificationOccurred(k)}catch(e){}}
+  function tap(){try{if(tg)tg.HapticFeedback.impactOccurred('light')}catch(e){}}
+  function $(id){return document.getElementById(id)}
+  function money(n){return n.toLocaleString('ru-RU')+' ₸'}
+  function esc(x){return String(x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function toast(t){var el=$('toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(function(){el.classList.remove('on')},2400)}
+
+  var VOL={key:'vol',title:'Объём',ch:[['033','0,33 л',0],['05','0,5 л',900]]};
+  var DONE={key:'done',title:'Прожарка',ch:[['r','Rare',0],['mr','Medium rare',0],['m','Medium',0],['mw','Medium well',0],['wd','Well done',0]]};
+  var SIDE={key:'side',title:'Гарнир',ch:[['fries','Картофель фри',0],['veg','Овощи гриль',0],['mash','Пюре',0]]};
+  var SAUCE=[['pep','Перечный соус',590],['bbq','Соус BBQ',590]];
+  var MENU={
+    'Пиво':[{id:'blond',name:'Бельгийское светлое',price:1990,alc:true,groups:[VOL]},{id:'brune',name:'Бельгийское тёмное',price:2190,alc:true,groups:[VOL]},{id:'ruby',name:'Фруктовое красное 0,33',price:2290,alc:true},{id:'na',name:'Безалкогольное 0,5',price:1690}],
+    'Морепродукты':[{id:'shr5',name:'Пивные креветки 500 г',price:8790},{id:'oys6',name:'Устрицы, 6 шт',price:3900},{id:'crab',name:'Клешни камчатского краба',price:14900}],
+    'Стейки':[{id:'rib',name:'Рибай',price:12900,groups:[DONE,SIDE],mods:SAUCE},{id:'strip',name:'Стриплойн',price:10900,groups:[DONE,SIDE],mods:SAUCE}],
+    'Закуски':[{id:'garl',name:'Чесночные гарлики',price:1390},{id:'chee',name:'Сырные палочки',price:3290},{id:'padr',name:'Перец падрон на углях',price:5390}],
+    'Напитки':[{id:'lem',name:'Лимонад',price:1490},{id:'water',name:'Вода 0,5 л',price:590},{id:'tea',name:'Чай',price:1290}]
+  };
+  var ALL={};Object.keys(MENU).forEach(function(c){MENU[c].forEach(function(i){ALL[i.id]=i})});
+  var OT={t5:'Стол 5',t12:'Стол 12',bar:'Бар'};
+  var PAY={cash:'Наличные',card:'Карта',qr:'QR-оплата'};
+
+  var TASKS=[
+    {lv:'Уровень 1 · Простой заказ',say:'«Добрый вечер! Пивные креветки на 500 грамм и бельгийское светлое, большое. Мы за пятым столом. Картой».',hint:'Стол, две позиции, объём пива, оплата картой. Не забудь допродажу и повтор заказа.',
+      type:'t5',pay:'card',want:[{id:'shr5',qty:1},{id:'blond',sel:{vol:'05'},qty:1}],upsell:{id:'garl',qty:1,reply:'«Гарлики к пиву? Давайте».'}},
+    {lv:'Уровень 2 · Стейк и модификаторы',say:'«Рибай, medium rare, с овощами гриль и перечным соусом. И тёмное большое. Стол 12, оплачу через QR».',hint:'Прожарка, гарнир и соус — частые ошибки новичков. Прожарку уточняем всегда.',
+      type:'t12',pay:'qr',want:[{id:'rib',sel:{done:'mr',side:'veg'},mods:['pep'],qty:1},{id:'brune',sel:{vol:'05'},qty:1}],upsell:{id:'padr',qty:1,reply:'«Перец падрон? Да, попробуем».'}},
+    {lv:'Уровень 3 · Разные прожарки и сдача',say:'«Два стриплойна с картошкой фри: один medium, второй well done. И шесть устриц. Мы за баром. Наличными, вот 30 000».',hint:'Одинаковые стейки с разной прожаркой — отдельными строками. Посчитай сдачу.',
+      type:'bar',pay:'cash',cash:30000,want:[{id:'strip',sel:{done:'m',side:'fries'},qty:1},{id:'strip',sel:{done:'wd',side:'fries'},qty:1},{id:'oys6',qty:1}],upsell:{id:'chee',qty:1,reply:'«Сырные палочки? Можно».'}},
+    {lv:'Уровень 4 · Проверка возраста',say:'«Мне бельгийское светлое, большое, и креветки на 500. Стол 5, картой». Гость выглядит лет на 19–20.',hint:'Сомневаешься в возрасте — попроси документ до того, как пробивать алкоголь.',
+      type:'t5',pay:'card',age:20,want:[{id:'na',qty:1},{id:'shr5',qty:1}],upsell:null,afterId:'«Ой, мне 20… Тогда безалкогольное, пожалуйста».'}
+  ];
+  var level=0,best={},order,start,tick,upsold,repeated,payInfo,idChecked,alcBeforeId;
+  try{best=JSON.parse(localStorage.getItem('leffe-pos-best')||'{}')}catch(e){}
+
+  function choice(g,k){return g.ch.filter(function(c){return c[0]===k})[0]}
+  function linePrice(l){var it=ALL[l.id],p=it.price;(it.groups||[]).forEach(function(g){var c=choice(g,(l.sel||{})[g.key]);if(c)p+=c[2]});(l.mods||[]).forEach(function(m){var md=(it.mods||[]).filter(function(x){return x[0]===m})[0];p+=md?md[2]:0});return p*l.qty}
+  function total(){return order.lines.reduce(function(s,l){return s+linePrice(l)},0)}
+  function norm(l){var it=ALL[l.id],sel={};(it.groups||[]).forEach(function(g){sel[g.key]=(l.sel||{})[g.key]||null});return JSON.stringify([l.id,sel,(l.mods||[]).slice().sort()])}
+  function sameLine(a,b){return norm(a)===norm(b)}
+  function subOf(l){var it=ALL[l.id],sub=[];(it.groups||[]).forEach(function(g){var c=choice(g,(l.sel||{})[g.key]);if(c)sub.push(c[1])});(l.mods||[]).forEach(function(m){sub.push(it.mods.filter(function(x){return x[0]===m})[0][1])});return sub}
+  function desc(l){var it=ALL[l.id],s=(l.qty>1?l.qty+'× ':'')+it.name,sub=subOf(l);return s+(sub.length?' ('+sub.join(', ').toLowerCase()+')':'')}
+
+  function renderLevels(){
+    $('levels').innerHTML=TASKS.map(function(t,i){return '<button class="'+(i===level?'on':'')+'" data-i="'+i+'">Уровень '+(i+1)+(best[i]!=null?' <span class="ok">✓ '+best[i]+'</span>':'')+'</button>'}).join('');
+    $('levels').querySelectorAll('button').forEach(function(b){b.onclick=function(){level=+b.dataset.i;reset()}});
+  }
+  function reset(){
+    order={type:null,lines:[]};upsold=false;repeated=false;payInfo=null;idChecked=false;alcBeforeId=false;
+    var t=TASKS[level];$('tLv').textContent=t.lv;$('tSay').textContent=t.say;$('tHint').textContent=t.hint;
+    clearInterval(tick);start=null;$('timer').textContent='0:00';
+    renderLevels();renderCheck();renderCats(Object.keys(MENU)[0]);
+  }
+  function startTimer(){if(start)return;start=Date.now();tick=setInterval(function(){var s=Math.floor((Date.now()-start)/1000);$('timer').textContent=Math.floor(s/60)+':'+('0'+s%60).slice(-2)},500)}
+
+  $('otype').querySelectorAll('button').forEach(function(b){b.onclick=function(){startTimer();order.type=b.dataset.t;tap();renderCheck()}});
+  function renderCheck(){
+    $('otype').querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.t===order.type)});
+    if(!order.lines.length){$('lines').innerHTML='<div class="empty">Выбери стол и добавь позиции из меню</div>';}
+    else $('lines').innerHTML=order.lines.map(function(l,i){var it=ALL[l.id],sub=subOf(l);
+      return '<div class="line"><div class="q">'+l.qty+'×</div><div class="n">'+esc(it.name)+(sub.length?'<small>'+esc(sub.join(' · '))+'</small>':'')+'</div><div class="p">'+money(linePrice(l))+'</div><button class="x" data-i="'+i+'" aria-label="Удалить">✕</button></div>'}).join('');
+    $('lines').querySelectorAll('.x').forEach(function(b){b.onclick=function(){order.lines.splice(+b.dataset.i,1);tap();renderCheck()}});
+    $('total').textContent=money(total());
+    $('payBtn').disabled=!order.lines.length;
+    var u=TASKS[level].upsell;
+    $('upsellBtn').textContent=upsold?'Допродажа ✓':'Предложить допродажу';
+    $('repeatBtn').textContent=repeated?'Заказ повторён ✓':'Повторить заказ';
+    $('idBtn').textContent=idChecked?'Документ проверен ✓':'Попросить документ';
+  }
+  function renderCats(c){
+    $('cats').innerHTML=Object.keys(MENU).map(function(k){return '<button class="'+(k===c?'on':'')+'">'+k+'</button>'}).join('');
+    $('cats').querySelectorAll('button').forEach(function(b){b.onclick=function(){renderCats(b.textContent)}});
+    $('items').innerHTML=MENU[c].map(function(i){return '<button class="item" data-id="'+i.id+'"><b>'+esc(i.name)+'</b><span>'+(i.groups&&i.groups[0]===VOL?'от ':'')+money(i.price)+'</span></button>'}).join('');
+    $('items').querySelectorAll('.item').forEach(function(b){b.onclick=function(){startTimer();tap();openItem(b.dataset.id)}});
+  }
+  function addLine(l){var it=ALL[l.id];if(it.alc&&TASKS[level].age&&!idChecked)alcBeforeId=true;var ex=order.lines.filter(function(x){return sameLine(x,l)})[0];if(ex)ex.qty+=l.qty;else order.lines.push(l);renderCheck();}
+
+  function openItem(id){
+    var it=ALL[id];
+    if(!it.groups&&!it.mods){addLine({id:id,qty:1});toast('+ '+it.name);return;}
+    var st={sel:{},mods:[],qty:1};
+    (it.groups||[]).forEach(function(g){if(g===VOL)st.sel.vol='05'});
+    function draw(){
+      var missing=(it.groups||[]).filter(function(g){return !st.sel[g.key]});
+      var price=linePrice({id:id,sel:st.sel,mods:st.mods,qty:st.qty});
+      $('sItem').innerHTML='<h3>'+esc(it.name)+'</h3><div class="sub">Выбери параметры — как сказал гость</div>'+
+        (it.groups||[]).map(function(g){return '<div class="grp">'+g.title+'</div><div class="opts" data-g="'+g.key+'">'+g.ch.map(function(c){return '<button data-v="'+c[0]+'" class="'+(st.sel[g.key]===c[0]?'on':'')+'">'+c[1]+(c[2]?'<small>+'+c[2]+' ₸</small>':'')+'</button>'}).join('')+'</div>'}).join('')+
+        (it.mods?'<div class="grp">Соусы и дополнения</div><div class="opts" id="oMods">'+it.mods.map(function(m){return '<button data-v="'+m[0]+'" class="'+(st.mods.indexOf(m[0])>=0?'on':'')+'">'+m[1]+'<small>+'+m[2]+' ₸</small></button>'}).join('')+'</div>':'')+
+        '<div class="grp">Количество</div><div class="qty"><button id="qm">−</button><b>'+st.qty+'</b><button id="qp">+</button></div>'+
+        '<div class="err'+(missing.length?' on':'')+'">'+(missing.length?'Выбери: '+missing.map(function(g){return g.title.toLowerCase()}).join(', '):'')+'</div>'+
+        '<div class="row"><button class="btn ghost" id="iCancel">Отмена</button><button class="btn" id="iAdd"'+(missing.length?' disabled':'')+'>Добавить · '+money(price)+'</button></div>';
+      $('sItem').querySelectorAll('.opts[data-g]').forEach(function(box){box.querySelectorAll('button').forEach(function(b){b.onclick=function(){st.sel[box.dataset.g]=b.dataset.v;tap();draw()}})});
+      if($('oMods'))$('oMods').querySelectorAll('button').forEach(function(b){b.onclick=function(){var v=b.dataset.v,i=st.mods.indexOf(v);if(i>=0)st.mods.splice(i,1);else st.mods.push(v);tap();draw()}});
+      $('qm').onclick=function(){if(st.qty>1){st.qty--;draw()}};$('qp').onclick=function(){st.qty++;draw()};
+      $('iCancel').onclick=close;$('iAdd').onclick=function(){if(missing.length)return;addLine({id:id,sel:Object.assign({},st.sel),mods:st.mods.slice(),qty:st.qty});close();toast('+ '+it.name)};
+    }
+    draw();$('mItem').classList.add('on');
+  }
+  function close(){document.querySelectorAll('.modal').forEach(function(m){m.classList.remove('on')})}
+  document.querySelectorAll('.modal').forEach(function(m){m.addEventListener('click',function(e){if(e.target===m&&m.id!=='mRes')close()})});
+
+  $('upsellBtn').onclick=function(){
+    if(upsold)return;startTimer();var u=TASKS[level].upsell;
+    if(!u){upsold=true;toast('Гость: «Спасибо, пока всё»');renderCheck();return;}
+    upsold=true;addLine({id:u.id,qty:u.qty});haptic('success');toast('Гость: '+u.reply);renderCheck();
+  };
+  $('repeatBtn').onclick=function(){
+    if(!order.lines.length)return;repeated=true;tap();
+    toast('Вы повторили заказ — гость: «Да, всё верно»');renderCheck();
+  };
+  $('idBtn').onclick=function(){
+    if(idChecked)return;startTimer();idChecked=true;var t=TASKS[level];
+    if(t.age){haptic('warning');toast('Удостоверение: гостю '+t.age+' лет. Алкоголь продавать нельзя');$('tSay').textContent=t.afterId;}
+    else toast('Документ в порядке, гостю больше 21 года');
+    renderCheck();
+  };
+
+  $('payBtn').onclick=function(){
+    var t=TASKS[level],method=null;
+    function draw(){
+      var tot=total();
+      $('sPay').innerHTML='<h3>Расчёт</h3><div class="sub">К оплате: <b>'+money(tot)+'</b></div>'+
+        (!upsold&&t.upsell?'<div class="upsell">Подсказка: ты ещё не предложил гостю допродажу. Можно вернуться и предложить.</div>':'')+
+        '<div class="grp">Способ оплаты</div><div class="pay" id="pm">'+Object.keys(PAY).map(function(k){return '<button data-k="'+k+'" class="'+(method===k?'on':'')+'">'+PAY[k]+'</button>'}).join('')+'</div>'+
+        '<div class="cash'+(method==='cash'?' on':'')+'"><div class="grp">Гость дал</div><input id="given" inputmode="numeric" placeholder="Сумма, ₸"><div class="quick"><button data-v="20000">20 000</button><button data-v="30000">30 000</button><button data-v="exact">Без сдачи</button></div><div class="change" id="chg"></div><div class="err" id="eCash">Гость дал меньше суммы заказа</div></div>'+
+        '<div class="err" id="ePay">Выбери способ оплаты</div>'+
+        '<div class="row"><button class="btn ghost" id="pBack">Назад к заказу</button><button class="btn ok" id="pDone">Закрыть заказ</button></div>';
+      $('pm').querySelectorAll('button').forEach(function(b){b.onclick=function(){method=b.dataset.k;tap();draw()}});
+      var g=$('given');
+      function upd(){var v=parseInt((g.value||'').replace(/\D/g,''))||0;$('eCash').classList.remove('on');$('chg').innerHTML=v?(v>=tot?'Сдача: <b>'+money(v-tot)+'</b>':''):'';}
+      if(g){g.addEventListener('input',upd);document.querySelectorAll('.quick button').forEach(function(b){b.onclick=function(){g.value=b.dataset.v==='exact'?String(tot):b.dataset.v;upd()}});}
+      $('pBack').onclick=close;
+      $('pDone').onclick=function(){
+        if(!method){$('ePay').classList.add('on');haptic('error');return;}
+        var given=null;if(method==='cash'){given=parseInt((g.value||'').replace(/\D/g,''))||0;if(given<tot){$('eCash').classList.add('on');haptic('error');return;}}
+        payInfo={method:method,given:given};close();finish();
+      };
+    }
+    draw();$('mPay').classList.add('on');
+  };
+
+  function finish(){
+    clearInterval(tick);var secs=start?Math.round((Date.now()-start)/1000):0;
+    var t=TASKS[level],res=[],score=0,max=0,critFail=false;
+    function chk(ok,good,bad,w){max+=w;if(ok)score+=w;res.push([ok,ok?good:bad])}
+    chk(order.type===t.type,'Стол: '+OT[t.type],'Стол: нужно «'+OT[t.type]+'», а выбрано «'+(OT[order.type]||'не выбран')+'»',10);
+    if(t.age){
+      chk(idChecked,'Попросил документ у гостя','Не попросил документ — гостю '+t.age+' лет',20);
+      var alc=order.lines.some(function(l){return ALL[l.id].alc});
+      chk(!alc&&!alcBeforeId,'Алкоголь не пробит гостю младше 21 года','Критичная ошибка: алкоголь пробит гостю младше 21 года',30);
+      if(alc||alcBeforeId)critFail=true;
+    }
+    var want=t.want.map(function(w){return Object.assign({mods:[],sel:{}},w)});
+    var got=order.lines.filter(function(l){return !(upsold&&t.upsell&&l.id===t.upsell.id&&!want.some(function(w){return w.id===l.id}))});
+    var miss=[],extra=got.slice();
+    want.forEach(function(w){var i=-1;extra.some(function(x,k){if(sameLine(x,w)&&x.qty===w.qty){i=k;return true}});if(i>=0)extra.splice(i,1);else miss.push(w)});
+    chk(!miss.length&&!extra.length,'Состав заказа без ошибок',
+      'Ошибки в составе: '+(miss.length?'не хватает — '+miss.map(desc).join('; '):'')+(miss.length&&extra.length?'. ':'')+(extra.length?'лишнее или неверно — '+extra.map(desc).join('; '):''),t.age?25:40);
+    if(t.upsell)chk(upsold,'Предложил допродажу','Не предложил допродажу — минус к среднему чеку',15);
+    chk(repeated,'Повторил заказ гостю','Не повторил заказ — ошибка дошла бы до кухни',10);
+    chk(payInfo.method===t.pay,'Оплата: '+PAY[t.pay],'Оплата: гость просил «'+PAY[t.pay]+'», а выбрано «'+PAY[payInfo.method]+'»',10);
+    if(t.pay==='cash'&&payInfo.method==='cash'){var ch=payInfo.given-total();chk(payInfo.given===t.cash,'Принял '+money(t.cash)+', сдача '+money(ch),'Гость давал '+money(t.cash)+', а введено '+money(payInfo.given),10);}
+    var pct=Math.round(score/max*100);if(critFail)pct=Math.min(pct,40);
+    var fast=secs<=(level>=2?120:75);
+    if(best[level]==null||pct>best[level]){best[level]=pct;try{localStorage.setItem('leffe-pos-best',JSON.stringify(best))}catch(e){}}
+    haptic(pct>=80?'success':'error');
+    var rcpt=(OT[order.type]||'—')+' · СЧЁТ № '+(100+Math.floor(Math.random()*900))+'\n'+'-'.repeat(32)+'\n'+order.lines.map(function(l){var n=l.qty+'× '+ALL[l.id].name;return n+' '.repeat(Math.max(1,24-n.length))+linePrice(l)}).join('\n')+'\n'+'-'.repeat(32)+'\nИТОГО'+' '.repeat(19)+total()+'\n'+PAY[payInfo.method]+(payInfo.given?' · '+payInfo.given+' · сдача '+(payInfo.given-total()):'');
+    $('sRes').innerHTML='<div class="res"><h3>'+(critFail?'Критичная ошибка':(pct>=80?'Заказ пробит!':'Есть ошибки'))+'</h3><div class="big">'+pct+'%</div><div class="sub">Время: '+Math.floor(secs/60)+':'+('0'+secs%60).slice(-2)+(fast?' · быстро 👍':' · можно быстрее')+'</div>'+
+      '<ul>'+res.map(function(r){return '<li class="'+(r[0]?'g':'b')+'"><i>'+(r[0]?'✓':'✕')+'</i><span>'+esc(r[1])+'</span></li>'}).join('')+'</ul>'+
+      '<div class="receipt">'+esc(rcpt)+'</div>'+
+      '<div class="row"><button class="btn ghost" id="rAgain">Ещё раз</button>'+(level<TASKS.length-1?'<button class="btn" id="rNext">Следующий уровень</button>':'<button class="btn" id="rBack">'+(EMBED?'С начала':'Готово')+'</button>')+'</div></div>';
+    $('mRes').classList.add('on');
+    $('rAgain').onclick=function(){close();reset()};
+    var n=$('rNext');if(n)n.onclick=function(){close();level++;reset()};
+    var b=$('rBack');if(b)b.onclick=function(){close();if(EMBED){level=0;reset();}else location.href='index.html'};
+  }
+
+  reset();
+})();
+</script>
+</body>
+</html>

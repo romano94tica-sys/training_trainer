@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Школа сервиса Café Leffe: обучение персонала</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Rubik:wght@400;500;600;700&display=swap">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{--ink:#1C2422;--ink2:#284A41;--cream:#F7F4EC;--paper:#FFFDF8;--line:#DCD6C8;--tomato:#A5611B;--sun:#D4AD63;--muted:#5D6865;--soft:#CFD8D3;--ok:#2F7A4F;--bad:#B8341F;--tg:#2AABEE;
+    --f:'Rubik',system-ui,-apple-system,Segoe UI,Arial,sans-serif;--fd:'Oswald',Arial,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:#16211E;overflow-x:hidden}
+  body{font-family:var(--f);color:var(--ink);min-height:100vh;background:radial-gradient(circle at 80% 0%,#284A41 0%,#16211E 55%) fixed;display:flex;justify-content:center}
+  button,input{font-family:var(--f)}
+  .stage{width:100%;display:flex;gap:56px;justify-content:center;align-items:flex-start;padding:32px 16px}
+  .side{max-width:380px;color:var(--cream);padding-top:40px;display:none}
+  .side .eyebrow{color:var(--sun);font-weight:600;letter-spacing:2px;text-transform:uppercase;font-size:13px}
+  .side h1{font-family:var(--fd);text-transform:uppercase;font-size:44px;line-height:1.05;margin:14px 0 16px}
+  .side p{color:var(--soft);line-height:1.5;font-size:16px;margin-bottom:12px}
+  .side ol{margin:18px 0 0 18px;color:var(--soft);font-size:15px;line-height:1.5}
+  .side li{padding:4px 0}
+  .side li b{color:var(--cream)}
+  .side .who{margin-top:24px;font-size:14px;color:#A9B8B2}
+  @media (min-width:900px){.side{display:block}.phone{border-radius:44px;border:10px solid #0f0d0c;box-shadow:0 30px 80px rgba(0,0,0,.5)}}
+  body.tg .side{display:none!important}
+  body.tg .stage{padding:0}
+  body.tg .phone{max-width:none;border:0!important;border-radius:0!important;box-shadow:none!important;min-height:100vh}
+  .phone{width:100%;max-width:420px;background:var(--cream);overflow:hidden;position:relative;min-height:860px;display:flex;flex-direction:column}
+  .modebar{background:#0f0d0c;color:#BFB3A3;display:flex;align-items:center;gap:10px;padding:8px 12px;font-size:12px}
+  .modebar span{flex:none}
+  .seg{display:flex;flex:1;background:var(--ink2);border-radius:10px;padding:3px}
+  .seg button{flex:1;border:0;background:none;color:var(--soft);font-weight:600;font-size:12px;padding:7px 4px;border-radius:8px;cursor:pointer}
+  .seg button.on{background:var(--sun);color:var(--ink)}
+  header{background:var(--ink);color:var(--cream);padding:16px 20px 16px;position:relative;overflow:hidden}
+  header .dot1{position:absolute;right:-40px;top:-50px;width:150px;height:150px;border-radius:50%;background:var(--tomato)}
+  header .dot2{position:absolute;right:18px;top:12px;width:44px;height:44px;border-radius:50%;background:var(--sun)}
+  header .demo{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--sun);font-weight:600;position:relative}
+  header h2{font-family:var(--fd);font-size:26px;text-transform:uppercase;margin-top:6px;position:relative;line-height:1.1;max-width:78%}
+  header .meta{font-size:13px;color:#BFB3A3;margin-top:4px;position:relative}
+  .lvl{display:flex;align-items:center;gap:8px;margin-top:12px;position:relative;flex-wrap:wrap}
+  .badge{font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;background:var(--ink2);color:var(--soft);border:1px solid #3d3530;transition:.3s}
+  .badge.on{background:var(--sun);color:var(--ink);border-color:var(--sun)}
+  .pts{margin-left:auto;font-family:var(--fd);font-size:18px;color:var(--sun)}
+  .xp{margin-top:12px;position:relative}
+  .xp .bar{height:8px;background:#3d3530;border-radius:99px;overflow:hidden}
+  .xp .fill{height:100%;width:0;background:linear-gradient(90deg,var(--sun),var(--tomato));border-radius:99px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+  .xp .lbl{display:flex;justify-content:space-between;font-size:12px;color:#BFB3A3;margin-top:6px}
+  nav{display:flex;background:var(--paper);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+  nav button{flex:1;border:0;background:none;padding:10px 2px 9px;font-weight:600;font-size:11px;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;display:flex;flex-direction:column;align-items:center;gap:4px}
+  nav button svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  nav button.on{color:var(--ink);border-bottom-color:var(--tomato)}
+  main{flex:1;padding:20px}
+  .hide{display:none!important}
+  .view{display:none;animation:in .35s ease}
+  .view.on{display:block}
+  @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  h3{font-family:var(--fd);text-transform:uppercase;font-size:22px;margin-bottom:6px}
+  .sub{color:var(--muted);font-size:14px;line-height:1.45;margin-bottom:16px}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+  .tag{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600}
+  .btn{display:block;width:100%;border:0;border-radius:14px;padding:15px;font-weight:600;font-size:16px;cursor:pointer;background:var(--tomato);color:#fff;transition:transform .1s}
+  .btn:active{transform:scale(.98)}
+  .btn.dark{background:var(--ink)}
+  .btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+  .btn.okb{background:var(--ok)}
+  .btn.small{padding:10px;font-size:14px;border-radius:12px}
+  .btn.tgb{background:var(--tg)}
+  .row2{display:flex;gap:8px}
+  .gap{height:10px}
+  /* onboarding */
+  .steps{display:flex;gap:6px;margin-bottom:18px}
+  .steps i{flex:1;height:5px;border-radius:9px;background:var(--line)}
+  .steps i.on{background:var(--tomato)}
+  .invite{background:var(--ink);color:var(--cream);border-radius:18px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden}
+  .invite .r{position:absolute;right:-30px;bottom:-30px;width:120px;height:120px;border-radius:50%;background:var(--tomato)}
+  .invite .r2{position:absolute;right:22px;bottom:22px;width:36px;height:36px;border-radius:50%;background:var(--sun)}
+  .invite .k{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--sun);font-weight:600;position:relative}
+  .invite b{display:block;font-family:var(--fd);font-size:24px;text-transform:uppercase;margin:6px 0 4px;position:relative}
+  .invite span{font-size:14px;color:var(--soft);position:relative}
+  .rest{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--paper);border:2px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;transition:.2s}
+  .rest.on{border-color:var(--tomato);background:#FBEDE8}
+  .rest .ic{flex:none;width:38px;height:38px;border-radius:10px;background:var(--cream);display:grid;place-items:center;font-family:var(--fd);font-size:16px}
+  .rest.on .ic{background:var(--tomato);color:#fff}
+  .rest b{display:block;font-size:15px}
+  .rest span{font-size:13px;color:var(--muted)}
+  label.f{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:14px 0 6px}
+  .in{width:100%;border:2px solid var(--line);background:var(--paper);border-radius:12px;padding:13px 14px;font-size:16px;color:var(--ink);outline:none}
+  .in:focus{border-color:var(--ink)}
+  .in.err{border-color:var(--bad)}
+  .errt{font-size:13px;color:var(--bad);margin-top:5px;display:none}
+  .errt.on{display:block}
+  .pick{display:flex;gap:8px;flex-wrap:wrap}
+  .pick button{flex:1;min-width:90px;border:2px solid var(--line);background:var(--paper);border-radius:12px;padding:12px 6px;font-weight:600;font-size:14px;cursor:pointer;color:var(--ink)}
+  .pick button.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+  .pick.err button{border-color:var(--bad)}
+  .consent{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--muted);line-height:1.45;margin:16px 0 4px;cursor:pointer}
+  .consent input{width:20px;height:20px;flex:none;margin-top:1px;accent-color:var(--tomato)}
+  .tgshare{margin-top:8px}
+  .wait{text-align:center;padding:16px 0 4px}
+  .clock{width:92px;height:92px;border-radius:50%;margin:6px auto 16px;border:6px solid var(--line);border-top-color:var(--tomato);animation:spin 1.4s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .summary{text-align:left;font-size:14px}
+  .summary div{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+  .summary div:first-of-type{border-top:0}
+  .summary span{color:var(--muted)}
+  .hint{background:#FDF1D8;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.45;color:#5c4210;margin:12px 0}
+  /* route */
+  .route .step{display:flex;gap:12px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
+  .route .step:first-of-type{border-top:0}
+  .route .step.click{cursor:pointer}
+  .route .n{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:13px;background:var(--cream);border:2px solid var(--line);color:var(--muted)}
+  .route .step.done .n{background:var(--ok);border-color:var(--ok);color:#fff}
+  .route .step.now .n{background:var(--tomato);border-color:var(--tomato);color:#fff;box-shadow:0 0 0 5px rgba(200,64,47,.18)}
+  .route b{display:block;font-size:15px}
+  .route span{font-size:13px;color:var(--muted)}
+  .route .arr{margin-left:auto;color:var(--muted);font-size:18px}
+  .welcome{background:#EAF4EC;border-radius:14px;padding:12px 14px;font-size:14px;color:#1f5436;margin-bottom:14px;line-height:1.45}
+  /* lesson */
+  .chips{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto}
+  .chip{flex:none;border:2px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 14px;font-weight:600;font-size:13px;cursor:pointer;color:var(--ink)}
+  .chip.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+  .chip .ok{color:var(--ok)}
+  .chip.on .ok{color:#8fd3a8}
+  .player{position:relative;aspect-ratio:9/12;border-radius:18px;overflow:hidden;background:linear-gradient(160deg,#284A41,#1C2422 60%);color:var(--cream);margin-bottom:8px}
+  .player .ring{position:absolute;right:-60px;bottom:-60px;width:220px;height:220px;border-radius:50%;background:var(--tomato)}
+  .player .ring2{position:absolute;right:40px;bottom:40px;width:60px;height:60px;border-radius:50%;background:var(--sun)}
+  .player .top{position:absolute;left:16px;right:16px;top:14px;display:flex;gap:4px}
+  .player .top i{flex:1;height:4px;border-radius:9px;background:rgba(255,255,255,.25);overflow:hidden}
+  .player .top i::after{content:"";display:block;height:100%;width:var(--w,0%);background:#fff}
+  .player .cap{position:absolute;left:20px;right:20px;top:50px}
+  .player .cap .k{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--sun);font-weight:600}
+  .player .cap .t{font-family:var(--fd);font-size:34px;line-height:1.08;text-transform:uppercase;margin-top:8px}
+  .player .cap .d{font-size:16px;line-height:1.45;color:var(--soft);margin-top:12px;max-width:85%}
+  .player .play{position:absolute;inset:0;display:grid;place-items:center;background:rgba(30,26,23,.45);cursor:pointer;border:0;width:100%}
+  .player .play .c{width:84px;height:84px;border-radius:50%;background:var(--cream);display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  .player .play .c::after{content:"";border-left:26px solid var(--tomato);border-top:16px solid transparent;border-bottom:16px solid transparent;margin-left:6px}
+  .player .play .lab{position:absolute;bottom:22px;left:0;right:0;text-align:center;font-size:13px;color:var(--soft)}
+  .note{font-size:12px;color:var(--muted);text-align:center;margin:4px 0 14px}
+  .tips .tip{display:flex;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+  .tips .tip:first-of-type{border-top:0}
+  .tips .ic{flex:none;width:28px;height:28px;border-radius:8px;background:var(--sun);display:grid;place-items:center;font-family:var(--fd);font-weight:700;font-size:14px}
+  .tips .tip.crit .ic{background:var(--tomato);color:#fff}
+  .tips b{font-size:15px;display:block}
+  .tips span{font-size:13px;color:var(--muted);line-height:1.4}
+  .sticker{display:flex;gap:14px;align-items:center;background:var(--ink);color:var(--cream);border-radius:16px;padding:14px;margin-bottom:12px}
+  .sticker .qr{flex:none;background:#fff;padding:8px;border-radius:10px;width:112px;height:112px;display:grid;place-items:center}
+  .sticker .qr img,.sticker .qr canvas{width:96px!important;height:96px!important}
+  .sticker b{font-family:var(--fd);text-transform:uppercase;font-size:18px;display:block;margin-bottom:4px}
+  .sticker span{font-size:13px;color:var(--soft);line-height:1.4}
+  .qhead{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:8px}
+  .qbar{height:6px;background:var(--line);border-radius:9px;overflow:hidden;margin-bottom:16px}
+  .qbar div{height:100%;background:var(--tomato);transition:width .4s}
+  .q{font-size:19px;font-weight:600;line-height:1.35;margin-bottom:16px}
+  .opt{display:block;width:100%;text-align:left;background:var(--paper);border:2px solid var(--line);border-radius:14px;padding:14px;font-weight:500;font-size:15px;color:var(--ink);margin-bottom:10px;cursor:pointer;transition:.2s}
+  .opt.right{border-color:var(--ok);background:#EAF4EC}
+  .opt.wrong{border-color:var(--bad);background:#FBE9E5;animation:shake .35s}
+  .opt:disabled{cursor:default}
+  @keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+  .fb{border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.45;margin:4px 0 14px;display:none}
+  .fb.on{display:block;animation:in .3s}
+  .fb.ok{background:#EAF4EC;color:#1f5436}
+  .fb.no{background:#FBE9E5;color:#7d2416}
+  .result{text-align:center;padding:10px 0}
+  .result .big{font-family:var(--fd);font-size:84px;line-height:1;color:var(--tomato)}
+  .medal{width:124px;height:124px;border-radius:50%;margin:8px auto 14px;display:grid;place-items:center;text-align:center;background:var(--sun);font-family:var(--fd);font-weight:700;font-size:16px;line-height:1.15;text-transform:uppercase;color:var(--ink);box-shadow:0 0 0 10px rgba(240,178,58,.25);animation:pop .6s cubic-bezier(.2,1.6,.4,1)}
+  .medal.pro{background:var(--tomato);color:#fff;box-shadow:0 0 0 10px rgba(200,64,47,.25)}
+  .medal.go{background:var(--ok);color:#fff;box-shadow:0 0 0 10px rgba(47,122,79,.25)}
+  @keyframes pop{from{transform:scale(.2);opacity:0}to{transform:none;opacity:1}}
+  .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+  .confetti i{position:absolute;top:-20px;width:10px;height:14px;border-radius:2px;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+  /* rating */
+  .shifts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+  .shifts div{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+  .shifts div.first{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+  .shifts b{font-family:var(--fd);font-size:24px;display:block}
+  .shifts div.first b{color:var(--sun)}
+  .shifts span{font-size:12px;color:var(--muted)}
+  .shifts div.first span{color:var(--soft)}
+  .lb .row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+  .lb .row:first-of-type{border-top:0}
+  .lb .row.me{background:#FDF1D8;margin:0 -16px;padding:10px 16px}
+  .lb .pos{width:24px;font-family:var(--fd);font-size:18px;color:var(--muted);text-align:center}
+  .lb .av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:14px;color:#fff}
+  .lb .nm{flex:1;font-size:15px;font-weight:500}
+  .lb .nm small{display:block;font-size:12px;color:var(--muted);font-weight:400}
+  .lb .sc{font-family:var(--fd);font-size:18px}
+  .ach{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .ach div{border:2px dashed var(--line);border-radius:14px;padding:12px 6px;text-align:center;font-size:12px;color:var(--muted);transition:.3s}
+  .ach div i{display:block;font-style:normal;font-family:var(--fd);font-weight:700;font-size:22px;margin-bottom:4px}
+  .ach div.got{border:2px solid var(--sun);background:#FDF1D8;color:var(--ink)}
+  /* bot */
+  .tgwrap{background:#E9E2D4;border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+  .tghead{background:var(--paper);display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .tghead .av{width:38px;height:38px;border-radius:50%;background:var(--tomato);display:grid;place-items:center;color:#fff;font-family:var(--fd);font-weight:700;font-size:16px}
+  .tghead b{display:block;font-size:15px}
+  .tghead span{font-size:12px;color:var(--tg)}
+  .chat{padding:14px;height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+  .msg{max-width:82%;padding:9px 12px;border-radius:14px;font-size:14px;line-height:1.4;animation:in .25s ease;white-space:pre-line}
+  .msg.bot{background:var(--paper);align-self:flex-start;border-bottom-left-radius:4px}
+  .msg.me{background:#D7F0C9;align-self:flex-end;border-bottom-right-radius:4px}
+  .msg .t{display:block;font-size:10px;color:var(--muted);text-align:right;margin-top:3px}
+  .typing{align-self:flex-start;background:var(--paper);padding:10px 14px;border-radius:14px;display:flex;gap:4px}
+  .typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1s infinite}
+  .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+  @keyframes blink{50%{opacity:.25}}
+  .quick{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:var(--paper);border-top:1px solid var(--line)}
+  .quick button{border:1px solid var(--tg);color:#1b7fb3;background:#fff;border-radius:10px;padding:8px 10px;font-weight:500;font-size:13px;cursor:pointer}
+  /* manager */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:8px 6px;border-bottom:1px solid var(--line)}
+  td{padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+  .pill{font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;white-space:nowrap}
+  .pill.g{background:#EAF4EC;color:#1f5436}.pill.y{background:#FDF1D8;color:#7a5410}.pill.r{background:#FBE9E5;color:#7d2416}.pill.b{background:#E3F1FA;color:#145a80}
+  .mini{height:6px;background:var(--line);border-radius:9px;overflow:hidden;width:70px}
+  .mini div{height:100%;background:var(--tomato);transition:width .6s}
+  .stat{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+  .stat div{background:var(--ink);color:var(--cream);border-radius:14px;padding:12px}
+  .stat b{font-family:var(--fd);font-size:28px;display:block;color:var(--sun)}
+  .stat span{font-size:11px;color:var(--soft)}
+  .alert{background:#FBE9E5;border-left:4px solid var(--tomato);border-radius:0;padding:12px 14px;font-size:14px;line-height:1.45;margin-bottom:12px}
+  .req{border:2px solid var(--tomato);border-radius:16px;padding:14px;background:#FFF7F4;margin-bottom:12px;animation:in .35s}
+  .req .top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .req .av{width:40px;height:40px;border-radius:50%;background:var(--tomato);color:#fff;display:grid;place-items:center;font-weight:600}
+  .req b{font-size:16px;display:block}
+  .req small{font-size:12px;color:var(--muted)}
+  .req .dl{font-size:13px;margin-bottom:12px}
+  .req .dl div{display:flex;justify-content:space-between;padding:5px 0;border-top:1px dashed var(--line)}
+  .req .dl span{color:var(--muted)}
+  .empty{font-size:14px;color:var(--muted);padding:6px 0}
+  .newbadge{display:inline-block;background:var(--tomato);color:#fff;border-radius:99px;font-size:11px;font-weight:700;padding:1px 7px;margin-left:6px;vertical-align:middle}
+  .att{border:0;background:var(--ok);color:#fff;border-radius:8px;padding:5px 8px;font-weight:600;font-size:11px;cursor:pointer}
+  .att:disabled{background:#c9bba5;cursor:default}
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(30px);background:var(--ink);color:var(--cream);padding:12px 18px;border-radius:12px;font-size:14px;opacity:0;transition:.3s;z-index:60;max-width:90vw;text-align:center;pointer-events:none}
+  .toast.on{opacity:1;transform:translateX(-50%)}
+  .modal{position:fixed;inset:0;background:rgba(22,33,30,.6);display:none;align-items:flex-end;justify-content:center;z-index:40}
+  .modal.on{display:flex}
+  .sheet{background:var(--paper);width:100%;max-width:440px;border-radius:20px 20px 0 0;padding:18px;max-height:88vh;overflow:auto;animation:in .25s}
+  .chk{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line);font-size:14px;line-height:1.4;cursor:pointer}
+  .chk input{width:20px;height:20px;flex:none;margin-top:1px;accent-color:var(--ok)}
+  .chk em{font-style:normal;color:var(--bad);font-weight:600;font-size:12px;margin-left:4px}
+  .attsum{display:flex;justify-content:space-between;gap:10px;font-size:14px;margin:12px 0;padding:10px 12px;border-radius:12px;background:var(--cream)}
+  .attsum b{font-family:var(--fd);font-size:18px}
+  footer{padding:14px 20px 22px;font-size:12px;color:var(--muted);text-align:center}
+  footer button{background:none;border:0;color:var(--muted);text-decoration:underline;font-size:12px;cursor:pointer;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="stage">
+  <aside class="side">
+    <div class="eyebrow">Школа сервиса · Café Leffe</div>
+    <h1>Как работает система</h1>
+    <p>Новичок приходит по приглашению своего ресторана, регистрируется, менеджер подтверждает — и начинается обучение с телефона.</p>
+    <ol>
+      <li><b>Приглашение</b> — QR-код ресторана</li>
+      <li><b>Регистрация</b> — имя, телефон, должность</li>
+      <li><b>Маршрут по должности</b> — хостес, официант, бармен, раннер, повар</li>
+      <li><b>Подтверждение</b> — менеджер нажимает «Да»</li>
+      <li><b>Обучение</b> — уроки, тесты, баллы, бот</li>
+      <li><b>Аттестация</b> — наставник проверяет по чек-листу</li>
+      <li><b>Допуск</b> к самостоятельной смене</li>
+    </ol>
+    <p style="margin-top:16px">Переключатель «Сотрудник / Менеджер» сверху показывает обе стороны.</p>
+    <div class="who">Роман Окшин · сервис обучения персонала · данные условные</div>
+  </aside>
+
+  <div class="phone">
+    <div class="modebar"><span>Демо:</span><div class="seg"><button class="on" data-mode="emp">Сотрудник</button><button data-mode="mgr">Менеджер <span id="mgrBadge"></span></button></div></div>
+
+    <!-- EMPLOYEE: ONBOARDING -->
+    <div id="onb">
+      <header>
+        <div class="dot1"></div><div class="dot2"></div>
+        <div class="demo">Школа сервиса · Café Leffe</div>
+        <h2 id="onbHello">Добро пожаловать!</h2>
+        <div class="meta">Регистрация займёт 1 минуту</div>
+      </header>
+      <main>
+        <div class="steps"><i id="s1" class="on"></i><i id="s2"></i><i id="s3"></i></div>
+
+        <section id="oRest">
+          <div id="inviteBox"></div>
+          <div id="restPick">
+            <h3>Где ты работаешь?</h3>
+            <p class="sub">Обычно ресторан определяется сам по QR-коду от менеджера. Если ты открыл бота без приглашения — выбери из списка.</p>
+            <div id="restList"></div>
+            <div class="errt" id="eRest">Выбери ресторан</div>
+          </div>
+          <div class="gap"></div>
+          <button class="btn" id="toForm">Дальше</button>
+        </section>
+
+        <section id="oForm" class="hide">
+          <h3>Расскажи о себе</h3>
+          <p class="sub" id="formRest"></p>
+          <label class="f" for="fName">Имя и фамилия</label>
+          <input class="in" id="fName" autocomplete="name" placeholder="Например: Айгерим Серикова">
+          <div class="errt" id="eName">Введи имя и фамилию</div>
+          <label class="f" for="fPhone">Телефон</label>
+          <input class="in" id="fPhone" type="tel" inputmode="tel" placeholder="+7 7__ ___ __ __">
+          <div class="errt" id="ePhone">Введи номер в формате +7 7XX XXX XX XX</div>
+          <button class="btn small tgb tgshare hide" id="tgPhone">Поделиться номером из Telegram</button>
+          <label class="f">Должность</label>
+          <div class="pick" id="fRole"><button data-r="Хостес">Хостес</button><button data-r="Официант">Официант</button><button data-r="Бармен">Бармен</button><button data-r="Раннер">Раннер</button><button data-r="Повар">Повар</button></div>
+          <div class="errt" id="eRole">Выбери должность</div>
+          <label class="f" for="fDate">Дата первой смены</label>
+          <input class="in" id="fDate" type="date">
+          <div class="errt" id="eDate">Укажи дату</div>
+          <label class="consent"><input type="checkbox" id="fOk"><span>Согласен на обработку персональных данных для обучения и учёта смен. <i>В демо данные остаются только на этом телефоне.</i></span></label>
+          <div class="errt" id="eOk">Нужно согласие, чтобы продолжить</div>
+          <div class="gap"></div>
+          <div class="row2"><button class="btn ghost" id="backRest" style="flex:1">Назад</button><button class="btn" id="sendReg" style="flex:2">Отправить заявку</button></div>
+        </section>
+
+        <section id="oWait" class="hide">
+          <div class="wait" id="waitBox"></div>
+        </section>
+      </main>
+    </div>
+
+    <!-- EMPLOYEE: APP -->
+    <div id="empApp" class="hide" style="display:flex;flex-direction:column;flex:1">
+      <header>
+        <div class="dot1"></div><div class="dot2"></div>
+        <div class="demo">Школа сервиса · обучение</div>
+        <h2 id="hello">Привет!</h2>
+        <div class="meta" id="meta"></div>
+        <div class="lvl">
+          <span class="badge on" id="b1">Новичок</span>
+          <span class="badge" id="b2">Стажёр</span>
+          <span class="badge" id="b3">Профи</span>
+          <span class="pts" id="pts">0 баллов</span>
+        </div>
+        <div class="xp">
+          <div class="bar"><div class="fill" id="xpfill"></div></div>
+          <div class="lbl"><span id="xptext">0 станций</span><span>14 дней до смены</span></div>
+        </div>
+      </header>
+      <nav>
+        <button class="on" data-v="route"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/></svg>Маршрут</button>
+        <button data-v="lesson"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9l5 3-5 3z"/></svg>Учёба</button>
+        <button data-v="pos"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 18h8"/></svg>Касса</button>
+        <button data-v="rating"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>Рейтинг</button>
+        <button data-v="bot"><svg viewBox="0 0 24 24"><path d="M21 4L3 11l6 2 2 6 3-4 5 4z"/></svg>Бот</button>
+      </nav>
+      <main>
+        <section class="view on" id="route">
+          <div class="welcome hide" id="welcome"></div>
+          <h3>Твой маршрут</h3>
+          <p class="sub">14 дней до самостоятельной смены. Нажми на станцию, чтобы открыть урок.</p>
+          <div class="card route" id="routeList"></div>
+          <button class="btn" id="routeGo">Продолжить обучение</button>
+        </section>
+
+        <section class="view" id="lesson">
+          <div class="chips" id="chips"></div>
+          <h3 id="lTitle"></h3>
+          <p class="sub">Видео на 60 секунд. Смотри в перерыве или прямо на станции по QR-коду.</p>
+          <div class="player">
+            <div class="ring"></div><div class="ring2"></div>
+            <div class="top" id="segs"></div>
+            <div class="cap" id="cap"><div class="k" id="capK"></div><div class="t" id="capT"></div><div class="d" id="capD"></div></div>
+            <button class="play" id="playBtn" aria-label="Смотреть видео"><div class="c"></div><div class="lab">Нажми, чтобы посмотреть</div></button>
+          </div>
+          <p class="note">В демо вместо видео — анимированная раскадровка. Настоящий ролик снимем в ресторане.</p>
+          <div class="card tips" id="tips"></div>
+          <div class="sticker"><div class="qr" id="qr"></div><div><b id="qrTitle">Наклейка на станцию</b><span>Новичок наводит камеру — урок этой станции открывается прямо в Telegram.</span></div></div>
+          <button class="btn dark" id="toQuiz">Пройти тест</button>
+          <a class="btn ghost" id="posBtn" href="#" style="text-align:center;text-decoration:none;margin-top:10px">Тренажёр кассы: пробей заказ</a>
+          <div id="quizBox" style="display:none;margin-top:18px">
+            <div id="qwrap">
+              <div class="qhead"><span id="qnum"></span><span>Нужно 4 из 5</span></div>
+              <div class="qbar"><div id="qbarf"></div></div>
+              <div class="q" id="qtext"></div>
+              <div id="qopts"></div>
+              <div class="fb" id="qfb"></div>
+              <button class="btn" id="qnext" style="display:none">Дальше</button>
+            </div>
+            <div class="result" id="qres" style="display:none"></div>
+          </div>
+        </section>
+
+        <section class="view" id="pos" style="margin:-20px -20px 0">
+          <iframe id="posFrame" title="Тренажёр кассы" style="width:100%;height:600px;border:0;display:block;background:#F6F1E7"></iframe>
+        </section>
+
+        <section class="view" id="rating">
+          <h3>Рейтинг</h3>
+          <p class="sub">Баллы за уроки и тесты. Лучшая смена месяца получает приз от ресторана.</p>
+          <div class="tag">Соревнование смен · этот месяц</div>
+          <div class="shifts">
+            <div class="first"><b>1 240</b><span>Утро · 1 место</span></div>
+            <div><b id="shiftMe">1 080</b><span>Вечер · твоя</span></div>
+            <div><b>960</b><span>Выходные</span></div>
+          </div>
+          <div class="card lb" id="lb"></div>
+          <div class="tag">Достижения</div>
+          <div class="ach" id="ach"></div>
+        </section>
+
+        <section class="view" id="bot">
+          <h3>Telegram-бот</h3>
+          <p class="sub">Напоминает про обучение и отвечает на частые вопросы 24/7. Нажми на кнопку внизу.</p>
+          <div class="tgwrap">
+            <div class="tghead"><div class="av">Ш</div><div><b>Бот Школы сервиса</b><span>бот</span></div></div>
+            <div class="chat" id="chat"></div>
+            <div class="quick" id="quick"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- MANAGER -->
+    <div id="mgrApp" class="hide">
+      <header>
+        <div class="dot1"></div><div class="dot2"></div>
+        <div class="demo">Школа сервиса · менеджер</div>
+        <h2>Менеджер смены</h2>
+        <div class="meta" id="mgrRest"></div>
+      </header>
+      <main>
+        <div class="tag">Заявки на регистрацию</div>
+        <div id="reqBox"></div>
+        <div class="stat">
+          <div><b id="mReady">3</b><span>допущены к смене</span></div>
+          <div><b id="mLearn">2</b><span>учатся сейчас</span></div>
+          <div><b>1</b><span>нужна помощь</span></div>
+        </div>
+        <div class="card">
+          <div class="tag">Новички ресторана</div>
+          <table>
+            <thead><tr><th>Имя</th><th>Станции</th><th>Статус</th></tr></thead>
+            <tbody id="mBody"></tbody>
+          </table>
+        </div>
+        <div class="alert"><b>Нужна помощь:</b> Данияр К. дважды не сдал тест «Бар» — ошибается в вопросе про проверку возраста гостя.</div>
+        <button class="btn small" id="remind">Назначить разбор с наставником</button>
+        <div class="gap"></div>
+        <div class="card"><div class="tag">Результаты обучения · пример данных</div><div class="stat" style="margin:0"><div><b>12</b><span>дней в среднем до допуска</span></div><div><b>83%</b><span>аттестация с 1-й попытки</span></div><div><b>71%</b><span>остаются через 90 дней</span></div></div></div>
+        <div class="card">
+          <div class="tag">Ресторан · прогресс по станциям</div>
+          <table id="stTable"></table>
+        </div>
+        <div class="sticker"><div class="qr" id="qrInvite"></div><div><b>Приглашение в ресторан</b><span>Дай этот QR новичку в первый день — ресторан подставится в регистрацию сам.</span></div></div>
+      </main>
+    </div>
+
+    <footer>Демо-концепт Романа Окшина · данные условные<br><button id="reset">Начать демо заново</button></footer>
+  </div>
+</div>
+<div class="confetti" id="confetti"></div>
+<div class="toast" id="toast"></div>
+<div class="modal" id="mAtt"><div class="sheet" id="sAtt"></div></div>
+
+<script>
+(function(){
+  // Имя Telegram-бота без @. Пока пусто — QR-коды ведут на эту страницу.
+  var BOT='';
+  var tg=(window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.initData)?window.Telegram.WebApp:null;
+  var tgUser=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user;
+  if(tg){document.body.classList.add('tg');try{tg.ready();tg.expand();tg.setHeaderColor('#0f0d0c');tg.setBackgroundColor('#F6F1E7');}catch(e){}}
+  function haptic(k){try{if(tg)tg.HapticFeedback.notificationOccurred(k)}catch(e){}}
+  function $(id){return document.getElementById(id)}
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+
+  var RESTS=[{id:'r1',name:'Café Leffe',addr:'пр. Достык, 168/2',ic:'L'},{id:'r2',name:'Café Leffe',addr:'ул. Манаса, 5а',ic:'L'},{id:'r3',name:'Новый ресторан группы',addr:'запуск через 3 недели',ic:'Н'}];
+  var ST=[
+    {id:'greet',name:'Встреча гостя',day:'Дни 2–3',
+      scenes:[['Первые 10 секунд','Гость вошёл — контакт глазами и улыбка, даже если ты говоришь по телефону.'],['Бронь','«Добрый вечер! На какое имя бронь?» Найди бронь и назови гостя по имени.'],['Нет мест','Назови честное время ожидания с запасом и предложи подождать в баре.'],['К столу','Иди чуть впереди в темпе гостя, отодвинь стул, подай меню открытым.'],['Передай официанту','Повод, аллергии, VIP — официант должен знать до первого подхода.']],
+      tips:[['10 секунд','Контакт глазами и улыбка сразу'],['Бронь','Назови гостя по имени'],['Ожидание','Время честно и с запасом, предложи бар'],['К столу','Веди гостя, а не показывай рукой'],['!Повод и аллергии — критично','Всегда передаём официанту']],
+      quiz:[
+        {q:'Гость вошёл, а ты говоришь по телефону. Что делаешь?',o:['Заканчиваю разговор, потом здороваюсь','Смотрю на гостя, улыбаюсь и жестом прошу секунду','Сразу кладу трубку'],a:1,e:'Гость не должен стоять незамеченным, но и звонящий гость важен.'},
+        {q:'Зал полный, брони нет. Лучший ответ?',o:['«Мест нет»','«Ближайший стол освободится примерно через 20 минут. Предложить подождать в баре?»','«Подождите, может что-то освободится»'],a:1,e:'Честное время и альтернатива сохраняют гостя.'},
+        {q:'Как провести гостя к столу?',o:['Показать рукой стол','Идти чуть впереди в темпе гостя','Пропустить гостя вперёд'],a:1,e:'Гость не должен искать стол сам.'},
+        {q:'Гость сказал, что у жены сегодня день рождения. Что дальше?',o:['Поздравить и забыть','Поздравить и передать официанту и менеджеру','Сразу вынести десерт со свечой'],a:1,e:'Повод отмечаем по стандарту ресторана, для этого о нём должна знать команда.'},
+        {q:'Как подать меню?',o:['Закрытым на край стола','Открытым, сначала даме или старшему гостю','Одно меню на весь стол'],a:1,e:'Открытое меню экономит гостю время и показывает заботу.'}]},
+    {id:'steps',name:'7 шагов сервиса',day:'Дни 3–5',
+      scenes:[['1. Встреча и посадка','Поприветствуй гостя, проводи к столу, помоги сесть.'],['2. Знакомство','Подойди в течение 1–2 минут, представься, расскажи о предложении дня.'],['3. Напитки','Прими заказ на напитки и посоветуй пиво под вкус гостя.'],['4. Заказ блюд','Рекомендация «блюдо + почему + напиток», вопрос об аллергиях, повтор заказа.'],['5. Подача и проверка','Назови блюдо при подаче. Через 2 минуты спроси, всё ли нравится.'],['6. Десерт и счёт','Убери посуду, предложи десерт и кофе. Счёт — когда гость попросит.'],['7. Прощание','Поблагодари, пригласи вернуться, проводи до выхода.']],
+      tips:[['Подход','В течение 1–2 минут после посадки'],['Рекомендация','Блюдо + почему + напиток'],['!Аллергии — критично','Спрашиваем всегда при морепродуктах и орехах'],['Проверка','Через 2 минуты после подачи'],['Прощание','Пригласи вернуться']],
+      quiz:[
+        {q:'Когда первый раз подойти к столу после посадки?',o:['Когда гость позовёт','В течение 1–2 минут','Через 7–10 минут, чтобы гость изучил меню'],a:1,e:'Гость не должен ждать, чтобы его заметили.'},
+        {q:'Какой шаг идёт сразу после знакомства?',o:['Заказ блюд','Заказ напитков','Счёт'],a:1,e:'Напитки приносим, пока гость выбирает блюда.'},
+        {q:'Когда спросить, всё ли нравится?',o:['Когда гость доест','Через 2 минуты после подачи','Не спрашивать, чтобы не мешать'],a:1,e:'За 2 минуты гость попробовал блюдо, и проблему ещё можно исправить.'},
+        {q:'Зачем повторять заказ гостю?',o:['Чтобы потянуть время','Чтобы исключить ошибку до кухни','Это формальность'],a:1,e:'Ошибку дешевле поймать до кухни, чем переделывать блюдо.'},
+        {q:'Гость заказал устрицы. Что уточнить обязательно?',o:['Нужен ли хлеб','Нет ли аллергии на морепродукты','Будет ли десерт'],a:1,e:'Аллергия — критичный пункт аттестации.'}]},
+    {id:'sales',name:'Продажи и допродажа',day:'Дни 5–6',
+      scenes:[['Знай продукт','Нельзя продать то, что не пробовал. Знай вкус, состав и подачу хитов меню.'],['Одна рекомендация','Не перечисляй меню. Назови 1–2 блюда, в которых уверен.'],['Формула','«Рекомендую стейк на огне: готовим на открытом огне, к нему отлично подойдёт тёмное бельгийское».'],['В моменте','Напиток к блюду, гарнир к стейку, десерт к кофе — предложение в нужный момент.'],['Отказ — это нормально','Гость отказался — улыбнись и продолжай. Без давления и повторов.']],
+      tips:[['Продукт','Знай вкус и состав хитов'],['Одна рекомендация','Не список, а 1–2 блюда'],['Формула','Блюдо + почему + напиток'],['Момент','Напиток к блюду, гарнир к стейку, десерт к кофе'],['Без давления','Отказ — продолжаем с улыбкой']],
+      quiz:[
+        {q:'Гость спрашивает: «Что у вас вкусное?» Лучший ответ?',o:['«Всё вкусное»','Перечислить всё меню','Назвать 1–2 блюда, объяснить чем хороши и предложить напиток'],a:2,e:'Конкретная рекомендация помогает гостю выбрать и повышает чек.'},
+        {q:'Гость заказал стейк. Какая допродажа уместна?',o:['Вторая порция стейка','Гарнир и пиво или вино к стейку','Три закуски сразу'],a:1,e:'Допродажа дополняет заказ, а не дублирует его.'},
+        {q:'Гость отказался от десерта. Что делаешь?',o:['Предлагаю ещё раз через 5 минут','Спокойно принимаю и предлагаю кофе или чай','Перечисляю все десерты'],a:1,e:'Давление портит впечатление. Одно мягкое альтернативное предложение — нормально.'},
+        {q:'Зачем официанту пробовать блюда меню?',o:['Это необязательно','Чтобы честно описать вкус и рекомендовать','Чтобы поесть бесплатно'],a:1,e:'Гость слышит, когда рекомендация искренняя.'},
+        {q:'Когда лучше предложить десерт?',o:['Сразу при заказе основного','После того, как убрал основные блюда','Когда приносишь счёт'],a:1,e:'После основного гость ещё за столом и готов продолжить.'}]},
+    {id:'table',name:'Уборка стола',day:'Дни 6–7',
+      scenes:[['Следи за столом','Пустые тарелки и бокалы, полные пепельницы и салфетки — замечай сразу.'],['Спроси разрешения','«Позволите забрать?» Тарелки убираем, когда гость закончил.'],['Тихо и аккуратно','Без звона и стопок у гостя на глазах. Остатки не счищаем при гостях.'],['Пересервировка','После ухода гостей: протереть стол, свежая сервировка по стандарту, проверить стулья и пол.'],['Скорость','Стол готов к новым гостям быстро — каждая минута это посадка.']],
+      tips:[['Замечай','Пустая посуда и бокалы — сразу'],['Разрешение','«Позволите забрать?»'],['Тихо','Без звона и стопок у гостя'],['Пересервировка','Стол, сервировка, стулья, пол'],['!Чистота — критично','Стол не готов — гостя не сажаем']],
+      quiz:[
+        {q:'Один гость доел, остальные ещё едят. Что делаешь?',o:['Убираю его тарелку сразу','Спрашиваю разрешения и убираю тихо','Жду, пока доедят все, и ничего не делаю'],a:1,e:'Спросить разрешения — вежливо и по стандарту сервиса.'},
+        {q:'Где счищать остатки еды с тарелок?',o:['У стола, чтобы быстрее','На мойке, не при гостях','Прямо в зале на сервант'],a:1,e:'Гость не должен видеть остатки еды и грязную посуду.'},
+        {q:'Гости ушли. Что входит в пересервировку?',o:['Только убрать посуду','Протереть стол, свежая сервировка, проверить стулья и пол','Поставить чистые бокалы'],a:1,e:'Новый гость оценивает стол целиком.'},
+        {q:'Хостес хочет посадить гостей за стол, который ещё не готов. Как правильно?',o:['Посадить, а потом протереть','Сначала подготовить стол, потом посадить','Посадить и дать меню, пока убираешь'],a:1,e:'Гостя не сажаем за неубранный стол — это критичный пункт.'},
+        {q:'Как нести грязную посуду через зал?',o:['Высокой стопкой','Аккуратно, на подносе, без звона','Как удобно'],a:1,e:'Зал — это витрина. Всё, что видит гость, часть сервиса.'}]},
+    {id:'beer',name:'Бар: бельгийское пиво',day:'Дни 7–8',
+      scenes:[['Бокал','Только чистый бокал своей формы для сорта. Без жирных следов.'],['Холодная вода','Ополосни бокал холодной водой: ровная, стойкая пена.'],['Налив','Под углом 45°, затем выровнять. Пена 2–3 см.'],['Подача','Логотипом к гостю, на подставке, держим за ножку или низ.'],['Возраст','Гость выглядит младше 25 — вежливо просим документ. До 21 года не продаём.']],
+      tips:[['Бокал','Чистый и своей формы'],['Перед наливом','Ополоснуть холодной водой'],['Налив','45° → выровнять → пена 2–3 см'],['Пиво к блюду','Светлое — морепродукты, тёмное — стейк'],['!Возраст — критично','До 21 года не продаём, сомневаешься — документ']],
+      quiz:[
+        {q:'Зачем ополаскивать бокал холодной водой?',o:['Чтобы быстрее налить','Чтобы охладить бокал и получить ровную пену','Не нужно, если бокал чистый'],a:1,e:'Холодный мокрый бокал даёт стойкую пену.'},
+        {q:'Правильная пена для бельгийского пива?',o:['Без пены','Примерно 2–3 см','Половина бокала'],a:1,e:'Пена удерживает аромат и газ.'},
+        {q:'Гость заказал стейк на огне. Какое пиво посоветовать?',o:['Любое светлое','Тёмное с карамельными нотами','Фруктовое'],a:1,e:'Солодовые и карамельные ноты хорошо идут к мясу на огне.'},
+        {q:'Гость выглядит на 19–20 лет и заказывает пиво. Действия?',o:['Подать, раз он в ресторане','Вежливо попросить документ, если нет 21 года — предложить безалкогольное','Спросить возраст на словах'],a:1,e:'В Казахстане алкоголь продают только с 21 года. Это критичный пункт.'},
+        {q:'Как держать бокал при подаче?',o:['За край','За ножку или низ, логотипом к гостю','Как удобно'],a:1,e:'Руки не касаются края, из которого пьёт гость.'}]},
+    {id:'sea',name:'Морепродукты и стейки',day:'Дни 8–10',
+      scenes:[['Свежесть','Живые устрицы плотно закрыты или закрываются при постукивании. Запах свежий, морской.'],['Холодовая цепь','Замороженное — при −18 °C и ниже. Повторно не замораживаем. Маркировка с датой.'],['Прожарка','По щупу: rare 50–52 °C, medium rare 55–57, medium 60–63, medium well 65–68, well 70+.'],['Отдых','После огня стейк отдыхает 5–7 минут, чтобы сок распределился.'],['Подача','Устрицы — на льду, вскрываем перед подачей. Стейк — на тёплой тарелке.']],
+      tips:[['Устрицы','Открыта и не закрывается — не используем'],['Заморозка','−18 °C и ниже, повторно нельзя'],['Medium rare','55–57 °C внутри'],['Отдых','5–7 минут после огня'],['!Сомнение в свежести — критично','Не подаём, зовём шефа']],
+      quiz:[
+        {q:'Устрица приоткрыта и не закрывается при постукивании. Что делать?',o:['Подать, если запах нормальный','Не использовать','Подать с лимоном'],a:1,e:'Сомнительный продукт не должен попасть к гостю.'},
+        {q:'Температура хранения замороженных морепродуктов?',o:['0…+2 °C','−5 °C','−18 °C и ниже'],a:2,e:'Это стандарт хранения замороженной продукции.'},
+        {q:'Гость заказал medium rare. Температура внутри стейка?',o:['45 °C','55–57 °C','65 °C'],a:1,e:'Проверяем щупом, не на глаз.'},
+        {q:'Зачем стейку отдыхать после огня?',o:['Чтобы остыл','Чтобы сок распределился и не вытек при разрезе','Чтобы успеть собрать гарнир'],a:1,e:'Отдых делает стейк сочнее.'},
+        {q:'Когда вскрывать устрицы?',o:['Перед началом смены','Непосредственно перед подачей','При приёмке'],a:1,e:'Вскрытая устрица быстро теряет свежесть.'}]},
+    {id:'hyg',name:'Гигиена на кухне',day:'Дни 2–4',
+      scenes:[['Руки','Мыть руки перед работой, после перерыва, после сырого мяса и рыбы.'],['Маркировка','Каждая заготовка — с датой и временем приготовления или вскрытия.'],['Первым пришёл — первым ушёл','Старые продукты используем раньше новых, если срок в порядке.'],['Сырое и готовое','Разные доски и ножи по цветовой маркировке. Сырое не над готовым.'],['Холодильники','Температура в норме, отметка в журнале. Отклонение — сразу шефу.']],
+      tips:[['Руки','Перед работой и после сырого'],['Маркировка','Дата и время на каждой заготовке'],['Ротация','Старое используем первым'],['Доски','Сырое и готовое — раздельно'],['!Без маркировки — критично','Продукт без даты не используем']],
+      quiz:[
+        {q:'Ты разделал сырую рыбу и переходишь к салату. Что сделать?',o:['Продолжить, руки чистые на вид','Вымыть руки и взять другую доску и нож','Протереть нож салфеткой'],a:1,e:'Перекрёстное загрязнение — главный риск на кухне.'},
+        {q:'Нашёл заготовку без маркировки. Что делаешь?',o:['Использую, если пахнет нормально','Не использую и сообщаю шефу','Подписываю сегодняшней датой'],a:1,e:'Без даты нельзя понять срок годности.'},
+        {q:'В холодильнике две упаковки одного продукта. Какую брать?',o:['Свежую','Ту, что пришла раньше, если срок в порядке','Любую'],a:1,e:'Правило «первым пришёл — первым ушёл» снижает списания.'},
+        {q:'Где хранить сырое мясо относительно готовых блюд?',o:['Над готовыми','Под готовыми или отдельно','Рядом, без разницы'],a:1,e:'Сок сырого мяса не должен капать на готовую еду.'},
+        {q:'Термометр холодильника показывает выше нормы. Действия?',o:['Подождать до конца смены','Сразу сообщить шефу и отметить в журнале','Ничего, это бывает'],a:1,e:'От температуры хранения зависит безопасность продуктов.'}]}
+  ];
+  var ROLE_ST={'Хостес':['greet','steps','sales'],'Официант':['greet','steps','sales','table','beer'],'Бармен':['beer','sales','steps'],'Раннер':['steps','table','sea'],'Повар':['hyg','sea']};
+  var CHECK={
+    'Хостес':[['Приветствие в первые 10 секунд',0],['Работа с бронью: гость назван по имени',0],['Честное время ожидания и предложение бара',0],['Гостя провели к столу, меню подано открытым',0],['Повод и аллергии переданы официанту',1],['Гостя не посадили за неготовый стол',1]],
+    'Официант':[['Подход к столу в течение 1–2 минут',0],['Представился, рассказал о предложении дня',0],['Рекомендация «блюдо + почему + напиток»',0],['Вопрос об аллергиях при морепродуктах',1],['Заказ повторён и пробит без ошибок',0],['Проверка через 2 минуты после подачи',0],['Уборка со стола с разрешения гостя',0],['Проверка документа при сомнении в возрасте',1],['Предложение десерта и кофе',0],['Прощание и приглашение вернуться',0]],
+    'Бармен':[['Чистый бокал своей формы',0],['Бокал ополоснут холодной водой',0],['Налив 45°, пена 2–3 см',0],['Подача логотипом к гостю, на подставке',0],['Рекомендация пива к блюду',0],['Проверка документа при сомнении в возрасте',1]],
+    'Раннер':[['Блюдо сверено с заказом перед выносом',1],['Подача на нужный стол и гостю',0],['Блюдо названо при подаче',0],['Уборка тихо, без стопок у гостя',0],['Пересервировка по стандарту',0],['Гостя не посадили за неготовый стол',1]],
+    'Повар':[['Мытьё рук после сырого',1],['Маркировка всех заготовок',1],['Раздельные доски для сырого и готового',0],['Прожарка по щупу',0],['Отдых стейка 5–7 минут',0],['Сомнительный продукт не используется',1]]
+  };
+  var PEOPLE=[['Мадина',520,'#2F7A4F','Официант · 5 станций'],['Ерлан',480,'#4E6FB0','Бармен · 3 станции'],['Ольга',410,'#A5611B','Хостес · 2 станции'],['Данияр К.',150,'#5D6865','Бармен · пересдача']];
+  var KEY='leffe-school-v1';
+  function fresh(){return {mode:'emp',reg:null,inviteRest:null,watched:{},scores:{},attested:false,cur:null,greeted:false,checks:{}}}
+  var state=fresh();
+  try{var s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.scores)state=s;}catch(e){}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+  function toast(t){var el=$('toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(function(){el.classList.remove('on')},2600)}
+  function rest(id){return RESTS.filter(function(r){return r.id===id})[0]}
+  function NAME(){if(state.reg&&state.reg.name)return state.reg.name.split(' ')[0];if(tgUser&&tgUser.first_name)return tgUser.first_name;return 'Айгерим'}
+  function passed(id){return state.scores[id]!=null&&state.scores[id]>=4}
+  function byId(id){return ST.filter(function(s){return s.id===id})[0]}
+  function MY(){var r=state.reg&&state.reg.role;return (ROLE_ST[r]||ROLE_ST['Официант']).map(byId)}
+  function NST(){return MY().length}
+  function nPassed(){return MY().filter(function(s){return passed(s.id)}).length}
+  function nextSt(){return MY().filter(function(s){return !passed(s.id)})[0]}
+  function link(param){return BOT?'https://t.me/'+BOT+'?startapp='+param:location.href.split('#')[0]+'#'+param}
+  function points(){var p=0;ST.forEach(function(s){if(state.watched[s.id])p+=20;if(passed(s.id))p+=100;if(state.scores[s.id]===5)p+=50;});if(state.attested)p+=200;return p}
+  function approved(){return state.reg&&state.reg.status==='approved'}
+
+  // ---------- start params (invite / station) ----------
+  var startParam=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.start_param)||(location.hash||'').slice(1);
+  if(rest(startParam)&&!state.reg){state.inviteRest=startParam;save();}
+
+  // ---------- mode ----------
+  document.querySelectorAll('.seg button').forEach(function(b){b.onclick=function(){setMode(b.dataset.mode)}});
+  function setMode(m){state.mode=m;save();render();window.scrollTo({top:0,behavior:'smooth'});}
+  function render(){
+    document.querySelectorAll('.seg button').forEach(function(b){b.classList.toggle('on',b.dataset.mode===state.mode)});
+    var pending=state.reg&&state.reg.status==='pending';
+    $('mgrBadge').innerHTML=pending?'<span class="newbadge">1</span>':'';
+    var emp=state.mode==='emp';
+    $('mgrApp').classList.toggle('hide',emp);
+    $('onb').classList.toggle('hide',!emp||approved());
+    $('empApp').classList.toggle('hide',!emp||!approved());
+    if(emp&&!approved())renderOnb();
+    if(emp&&approved())refresh();
+    if(!emp)renderManager();
+  }
+
+  // ---------- onboarding ----------
+  var sel=null,role=null;
+  function stepBar(n){[1,2,3].forEach(function(i){$('s'+i).classList.toggle('on',i<=n)})}
+  function renderOnb(){
+    $('onbHello').textContent=tgUser&&tgUser.first_name?'Привет, '+tgUser.first_name+'!':'Добро пожаловать!';
+    var st=state.reg&&state.reg.status;
+    $('oRest').classList.toggle('hide',!!st);$('oForm').classList.add('hide');$('oWait').classList.toggle('hide',!st);
+    if(st){stepBar(3);renderWait();return;}
+    stepBar(1);
+    sel=sel||state.inviteRest;
+    if(state.inviteRest){
+      var r=rest(state.inviteRest);
+      $('inviteBox').innerHTML='<div class="invite"><div class="r"></div><div class="r2"></div><div class="k">Тебя пригласил ресторан</div><b>'+r.name+'</b><span>'+r.addr+' · определено по QR-коду</span></div>';
+      $('restPick').classList.add('hide');
+    }else{$('inviteBox').innerHTML='';$('restPick').classList.remove('hide');}
+    $('restList').innerHTML=RESTS.map(function(r){return '<button class="rest'+(sel===r.id?' on':'')+'" data-id="'+r.id+'"><div class="ic">'+r.ic+'</div><div><b>'+r.name+'</b><span>'+r.addr+'</span></div></button>'}).join('');
+    $('restList').querySelectorAll('.rest').forEach(function(b){b.onclick=function(){sel=b.dataset.id;$('eRest').classList.remove('on');renderOnb();}});
+  }
+  $('toForm').onclick=function(){
+    if(!sel){$('eRest').classList.add('on');return;}
+    $('oRest').classList.add('hide');$('oForm').classList.remove('hide');stepBar(2);
+    var r=rest(sel);$('formRest').textContent=r.name+' · '+r.addr;
+    if(!$('fName').value){$('fName').value=tgUser?[tgUser.first_name,tgUser.last_name].filter(Boolean).join(' '):'';}
+    if(!$('fDate').value){var d=new Date();d.setDate(d.getDate()+1);$('fDate').value=d.toISOString().slice(0,10);}
+    if(tg&&tg.requestContact)$('tgPhone').classList.remove('hide');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+  $('backRest').onclick=function(){$('oForm').classList.add('hide');$('oRest').classList.remove('hide');stepBar(1);};
+  $('fRole').querySelectorAll('button').forEach(function(b){b.onclick=function(){role=b.dataset.r;$('fRole').querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b)});$('fRole').classList.remove('err');$('eRole').classList.remove('on');}});
+  ['fName','fPhone','fDate'].forEach(function(id){$(id).addEventListener('input',function(){$(id).classList.remove('err');$('e'+id.slice(1)).classList.remove('on');})});
+  $('fOk').addEventListener('change',function(){$('eOk').classList.remove('on')});
+  $('fPhone').addEventListener('blur',function(){var d=this.value.replace(/\D/g,'');if(d.length===11&&(d[0]==='7'||d[0]==='8')){d='7'+d.slice(1);this.value='+7 '+d.slice(1,4)+' '+d.slice(4,7)+' '+d.slice(7,9)+' '+d.slice(9,11);}});
+  $('tgPhone').onclick=function(){
+    try{tg.requestContact(function(ok,resp){
+      if(!ok){toast('Номер можно ввести вручную');return;}
+      var c=resp&&resp.responseUnsafe&&resp.responseUnsafe.contact;
+      if(c&&c.phone_number){var d=String(c.phone_number).replace(/\D/g,'');$('fPhone').value='+'+d;}else{$('fPhone').value='Отправлен через Telegram';}
+      $('fPhone').classList.remove('err');$('ePhone').classList.remove('on');haptic('success');
+    });}catch(e){toast('Номер можно ввести вручную');}
+  };
+  $('sendReg').onclick=function(){
+    var ok=true,name=$('fName').value.trim(),phone=$('fPhone').value.trim(),date=$('fDate').value;
+    if(name.split(/\s+/).filter(Boolean).length<2){$('fName').classList.add('err');$('eName').classList.add('on');ok=false;}
+    var pd=phone.replace(/\D/g,'');
+    if(!(phone==='Отправлен через Telegram'||(pd.length===11&&(pd[0]==='7'||pd[0]==='8')))){$('fPhone').classList.add('err');$('ePhone').classList.add('on');ok=false;}
+    if(!role){$('fRole').classList.add('err');$('eRole').classList.add('on');ok=false;}
+    if(!date){$('fDate').classList.add('err');$('eDate').classList.add('on');ok=false;}
+    if(!$('fOk').checked){$('eOk').classList.add('on');ok=false;}
+    if(!ok){haptic('error');return;}
+    state.reg={name:name,phone:phone,role:role,date:date,rest:sel,status:'pending',at:Date.now()};save();haptic('success');render();
+  };
+  function fmtDate(d){try{return new Date(d+'T00:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'long'})}catch(e){return d}}
+  function renderWait(){
+    var r=state.reg,rs=rest(r.rest);
+    if(r.status==='rejected'){
+      $('waitBox').innerHTML='<div class="medal" style="background:var(--line)">Заявка<br>отклонена</div><h3>Нужно уточнить данные</h3><p class="sub">Менеджер ресторана отклонил заявку. Подойди к нему и подай заявку заново.</p><button class="btn" id="again">Подать заново</button>';
+      $('again').onclick=function(){state.reg=null;save();render();};return;
+    }
+    $('waitBox').innerHTML='<div class="clock"></div><h3>Заявка отправлена</h3><p class="sub">Менеджер ресторана «'+esc(rs.name)+'» подтвердит регистрацию. Бот пришлёт уведомление, и откроется обучение.</p>'+
+      '<div class="card summary"><div><span>Имя</span><b>'+esc(r.name)+'</b></div><div><span>Должность</span><b>'+esc(r.role)+'</b></div><div><span>Ресторан</span><b>'+esc(rs.name)+'</b></div><div><span>Первая смена</span><b>'+fmtDate(r.date)+'</b></div></div>'+
+      '<div class="hint">Демо: переключись в режим «Менеджер» сверху и подтверди заявку.</div><button class="btn dark" id="goMgr">Открыть экран менеджера</button>';
+    $('goMgr').onclick=function(){setMode('mgr')};
+  }
+
+  // ---------- employee app ----------
+  var navBtns=document.querySelectorAll('nav button');
+  function show(v){
+    document.querySelectorAll('.view').forEach(function(el){el.classList.toggle('on',el.id===v)});
+    navBtns.forEach(function(b){b.classList.toggle('on',b.dataset.v===v)});
+    if(v==='bot')startChat();
+    $('empApp').querySelector('header').classList.toggle('hide',v==='pos');
+    if(v==='pos'){if(!$('posFrame').src)$('posFrame').src='pos.html?embed=1';window.scrollTo(0,0);fitPos();}
+    if(v!=='pos')window.scrollTo({top:0,behavior:'smooth'});
+  }
+  navBtns.forEach(function(b){b.addEventListener('click',function(){show(b.dataset.v)})});
+  function fitPos(){var f=$('posFrame');if(!f||!f.offsetParent)return;var top=f.getBoundingClientRect().top;f.style.height=Math.max(480,window.innerHeight-top)+'px';}
+  window.addEventListener('resize',fitPos);
+  function renderRoute(){
+    var my=MY(),N=my.length,html='<div class="step done"><div class="n">✓</div><div><b>Регистрация и знакомство</b><span>Наставник: Данияр</span></div></div>';
+    var nowSet=false;
+    my.forEach(function(s,i){
+      var cls='step click',n=String(i+2),sub=s.day+' · урок и тест';
+      if(passed(s.id)){cls+=' done';n='✓';sub='Сдано '+state.scores[s.id]+'/5';}
+      else if(!nowSet){cls+=' now';nowSet=true;sub='Сейчас · '+sub;}
+      html+='<div class="'+cls+'" data-st="'+s.id+'"><div class="n">'+n+'</div><div><b>Станция «'+s.name+'»</b><span>'+sub+'</span></div><div class="arr">›</div></div>';
+    });
+    var all=nPassed()===N;
+    html+='<div class="step'+(state.attested?' done':(all?' now':''))+'"><div class="n">'+(state.attested?'✓':N+2)+'</div><div><b>Аттестация на смене</b><span>'+(state.attested?'Пройдена · отметил наставник':(all?'Сейчас · наставник проверит по чек-листу':'Дни 11–13 · с наставником'))+'</span></div></div>';
+    html+='<div class="step'+(state.attested?' done':'')+'"><div class="n">'+(state.attested?'✓':N+3)+'</div><div><b>Допуск к самостоятельной смене</b><span>'+(state.attested?'Ты в графике!':'День 14')+'</span></div></div>';
+    $('routeList').innerHTML=html;
+    $('routeList').querySelectorAll('[data-st]').forEach(function(el){el.onclick=function(){openStation(el.dataset.st)}});
+    var w=$('welcome');
+    if(state.attested){w.innerHTML='<b>Поздравляем!</b> Ты допущен к самостоятельной смене. Следующая встреча с наставником — через 30 дней.';w.classList.remove('hide');}
+    else if(nPassed()===0&&!Object.keys(state.watched).length){w.innerHTML='<b>Регистрация подтверждена.</b> Твой маршрут для должности «'+esc(state.reg.role)+'»: '+N+' станций. Менеджер ждёт тебя на смене '+fmtDate(state.reg.date)+'.';w.classList.remove('hide');}
+    else w.classList.add('hide');
+    $('routeGo').textContent=state.attested?'Посмотреть рейтинг':'Продолжить обучение';
+  }
+  $('routeGo').onclick=function(){if(state.attested){show('rating');return;}var nx=nextSt();if(nx)openStation(nx.id);else{toast('Все станции сданы — ждём аттестацию с наставником');}};
+
+  var timer=null,cur=null;
+  function openStation(id){cur=byId(id)||MY()[0];state.cur=cur.id;save();renderLesson();show('lesson');}
+  function renderLesson(){
+    var chipList=MY();if(chipList.indexOf(cur)<0)chipList=chipList.concat([cur]);$('chips').innerHTML=chipList.map(function(s){return '<button class="chip'+(s.id===cur.id?' on':'')+'" data-st="'+s.id+'">'+s.name+(passed(s.id)?' <span class="ok">✓</span>':'')+'</button>'}).join('');
+    $('chips').querySelectorAll('.chip').forEach(function(b){b.onclick=function(){cur=byId(b.dataset.st);state.cur=cur.id;save();renderLesson()}});
+    $('lTitle').textContent='Станция «'+cur.name+'»';
+    clearInterval(timer);
+    var segs=$('segs');segs.innerHTML='';cur.scenes.forEach(function(){segs.appendChild(document.createElement('i'))});
+    setScene(0);var pb=$('playBtn');pb.style.display='grid';pb.querySelector('.lab').textContent=state.watched[cur.id]?'Посмотреть ещё раз':'Нажми, чтобы посмотреть';
+    $('tips').innerHTML='<div class="tag">Шпаргалка</div>'+cur.tips.map(function(t,i){var crit=t[0].charAt(0)==='!';return '<div class="tip'+(crit?' crit':'')+'"><div class="ic">'+(crit?'!':i+1)+'</div><div><b>'+(crit?t[0].slice(1):t[0])+'</b><span>'+t[1]+'</span></div></div>'}).join('');
+    $('qrTitle').textContent='Наклейка «'+cur.name+'»';
+    drawQR($('qr'),link(cur.id));
+    $('quizBox').style.display='none';$('toQuiz').style.display='block';
+    $('posBtn').style.display=(cur.id==='sales'||cur.id==='beer')?'block':'none';
+    $('posBtn').onclick=function(e){e.preventDefault();show('pos')};
+  }
+  function setScene(i){$('capK').textContent='Шаг '+(i+1)+' из '+cur.scenes.length;$('capT').textContent=cur.scenes[i][0];$('capD').textContent=cur.scenes[i][1];var c=$('cap');c.style.animation='none';void c.offsetWidth;c.style.animation='in .4s ease';}
+  $('playBtn').addEventListener('click',function(){
+    var btn=this;btn.style.display='none';
+    var i=0,t=0,per=3000,tick=80,bars=$('segs').querySelectorAll('i');
+    bars.forEach(function(b){b.style.setProperty('--w','0%')});setScene(0);clearInterval(timer);
+    timer=setInterval(function(){
+      t+=tick;bars[i].style.setProperty('--w',Math.min(100,t/per*100)+'%');
+      if(t>=per){t=0;i++;
+        if(i>=cur.scenes.length){clearInterval(timer);
+          if(!state.watched[cur.id]){state.watched[cur.id]=true;save();refresh();toast('+20 баллов за урок');}
+          btn.style.display='grid';btn.querySelector('.lab').textContent='Посмотреть ещё раз';return;}
+        setScene(i);}
+    },tick);
+  });
+  function drawQR(box,url){
+    box.innerHTML='';
+    try{if(window.QRCode){new QRCode(box,{text:url,width:96,height:96,colorDark:'#1E1A17',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});return;}}catch(e){}
+    box.innerHTML='<span style="font-size:11px;font-weight:600;color:#1E1A17;text-align:center">QR-код</span>';
+  }
+
+  var qi=0,score=0,Q=null;
+  $('toQuiz').onclick=function(){this.style.display='none';$('quizBox').style.display='block';startQuiz();setTimeout(function(){$('quizBox').scrollIntoView({behavior:'smooth',block:'start'})},50)};
+  function startQuiz(){Q=cur.quiz;qi=0;score=0;$('qwrap').style.display='block';$('qres').style.display='none';renderQ();}
+  function renderQ(){
+    var it=Q[qi];$('qnum').textContent='Вопрос '+(qi+1)+' из 5';$('qbarf').style.width=(qi/5*100)+'%';$('qtext').textContent=it.q;
+    var box=$('qopts');box.innerHTML='';$('qfb').className='fb';$('qnext').style.display='none';
+    it.o.forEach(function(txt,k){
+      var b=document.createElement('button');b.className='opt';b.textContent=txt;
+      b.onclick=function(){
+        var all=box.querySelectorAll('.opt');all.forEach(function(x){x.disabled=true});all[it.a].classList.add('right');
+        var fb=$('qfb');
+        if(k===it.a){score++;haptic('success');fb.className='fb ok on';fb.textContent='Верно! '+it.e;}else{haptic('error');b.classList.add('wrong');fb.className='fb no on';fb.textContent='Не совсем. '+it.e;}
+        var nx=$('qnext');nx.style.display='block';nx.textContent=qi<4?'Дальше':'Узнать результат';
+      };
+      box.appendChild(b);
+    });
+  }
+  $('qnext').onclick=function(){
+    qi++;if(qi<5){renderQ();return;}
+    $('qbarf').style.width='100%';
+    var before=nPassed(),prev=state.scores[cur.id];
+    if(prev==null||score>prev)state.scores[cur.id]=score;save();
+    var N=NST(),ok=score>=4,all=nPassed()===N,r=$('qres');$('qwrap').style.display='none';r.style.display='block';
+    var next=nextSt();
+    if(ok){
+      r.innerHTML='<div class="big">'+score+'/5</div>'+(all&&before<N?'<div class="medal pro">Профи<br>все станции</div><h3>Уровень «Профи»!</h3><p class="sub">Все станции маршрута сданы. Дальше — аттестация на смене: наставник проверит по чек-листу.</p>':'<div class="medal">Сдано<br>'+cur.name+'</div><h3>'+(before===0?'Уровень «Стажёр»!':'Станция сдана!')+'</h3><p class="sub">Результат уже у менеджера'+(score===5?'. Бонус +50 за тест без ошибок!':'.')+'</p>')+
+        (next?'<button class="btn" id="rNext">Следующая станция: «'+next.name+'»</button>':'<button class="btn" id="rMgr">Как наставник отмечает аттестацию</button>')+'<div class="gap"></div><button class="btn ghost" id="rRoute">К маршруту</button>';
+      confetti();
+    }else{
+      r.innerHTML='<div class="big">'+score+'/5</div><h3>Почти получилось</h3><p class="sub">Нужно 4 из 5. Пересмотри урок, особенно шаги с ошибками, и попробуй снова. Менеджер увидит, что нужна помощь.</p><button class="btn" id="rAgain">Пройти ещё раз</button>';
+    }
+    var e;if(e=$('rNext'))e.onclick=function(){openStation(next.id)};
+    if(e=$('rMgr'))e.onclick=function(){setMode('mgr')};
+    if(e=$('rRoute'))e.onclick=function(){show('route')};
+    if(e=$('rAgain'))e.onclick=startQuiz;
+    refresh();
+  };
+  function confetti(){
+    var c=$('confetti'),cols=['#A5611B','#D4AD63','#F7F4EC','#2F7A4F'];
+    for(var i=0;i<90;i++){var p=document.createElement('i');p.style.left=Math.random()*100+'vw';p.style.background=cols[i%4];p.style.animationDuration=(1.8+Math.random()*1.6)+'s';p.style.animationDelay=(Math.random()*.4)+'s';c.appendChild(p);}
+    setTimeout(function(){c.innerHTML=''},4000);
+  }
+
+  function renderRating(){
+    var me=points(),list=PEOPLE.slice();list.push([NAME()+' (ты)',me,'#A5611B',nPassed()+' из '+NST()+' станций','me']);
+    list.sort(function(a,b){return b[1]-a[1]});
+    $('lb').innerHTML='<div class="tag">Новички ресторана · баллы</div>'+list.map(function(p,i){return '<div class="row'+(p[4]?' me':'')+'"><div class="pos">'+(i+1)+'</div><div class="av" style="background:'+p[2]+'">'+esc(p[0].charAt(0))+'</div><div class="nm">'+esc(p[0])+'<small>'+p[3]+'</small></div><div class="sc">'+p[1]+'</div></div>'}).join('');
+    $('shiftMe').textContent=(1080+me).toLocaleString('ru-RU');
+    var A=[['▶','Первый урок',Object.keys(state.watched).length>0],['✓','Первая станция',nPassed()>0],['5/5','Тест без ошибок',ST.some(function(s){return state.scores[s.id]===5})],['★','Все станции',nPassed()===NST()],['✓✓','Допуск к смене',state.attested],['⚡','Смена-лидер',1080+me>1240]];
+    $('ach').innerHTML=A.map(function(a){return '<div class="'+(a[2]?'got':'')+'"><i>'+a[0]+'</i>'+a[1]+'</div>'}).join('');
+  }
+
+  var QA=[['Мой график',function(){return 'Первая смена: '+fmtDate(state.reg.date)+', 12:00–20:00.\nРесторан: '+rest(state.reg.rest).name+', '+rest(state.reg.rest).addr+'.\nНаставник: Данияр.'}],
+    ['Что со мной дальше?',function(){var nx=nextSt();if(state.attested)return 'Ты допущен к самостоятельной смене! Следующая встреча с наставником — через 30 дней.';return nx?'Следующий шаг — станция «'+nx.name+'». Урок на 60 секунд и тест из 5 вопросов. Открыть можно в разделе «Учёба» или по QR-коду.':'Все станции сданы! Осталась аттестация на смене с наставником.'}],
+    ['7 шагов сервиса','1. Встреча и посадка\n2. Знакомство за 1–2 минуты\n3. Напитки\n4. Заказ блюд + рекомендация + аллергии\n5. Подача и проверка через 2 минуты\n6. Десерт, кофе, счёт\n7. Прощание и приглашение вернуться'],
+    ['Что посоветовать к стейку?','К стейку на огне — тёмное бельгийское с карамельными нотами. К морепродуктам — светлое. К десерту — фруктовое.\nФормула: блюдо + почему + напиток.'],
+    ['Гость без документа хочет пиво','Вежливо: «Извините, по закону мы продаём алкоголь только с 21 года. Можно ваш документ?»\nНет документа или нет 21 — предложи безалкогольное пиво или лимонад. Сложная ситуация — зови менеджера.'],
+    ['Гость жалуется','1. Выслушай, не перебивай.\n2. Извинись за ситуацию.\n3. Предложи решение или позови менеджера.\n4. Поблагодари, что сказал.'],
+    ['Позвать наставника','Готово! Данияр получил уведомление и подойдёт к тебе.']];
+  function addMsg(txt,who){var m=document.createElement('div');m.className='msg '+who;var d=new Date();m.textContent=txt;var t=document.createElement('span');t.className='t';t.textContent=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);m.appendChild(t);$('chat').appendChild(m);$('chat').scrollTop=1e6;}
+  function botSay(txt,delay){var ty=document.createElement('div');ty.className='typing';ty.innerHTML='<i></i><i></i><i></i>';$('chat').appendChild(ty);$('chat').scrollTop=1e6;setTimeout(function(){ty.remove();addMsg(txt,'bot')},delay||900);}
+  function startChat(){
+    if(startChat.done)return;startChat.done=true;
+    botSay('Привет, '+NAME()+'! Менеджер подтвердил твою регистрацию в ресторане «'+rest(state.reg.rest).name+'». Я — бот Школы сервиса.',600);
+    setTimeout(function(){var nx=nextSt();botSay(nx?'Сегодня по плану станция «'+nx.name+'». Урок займёт 60 секунд — загляни в перерыве.':'Все станции сданы — поздравляю!',900)},1500);
+    $('quick').innerHTML='';QA.forEach(function(qa){var b=document.createElement('button');b.textContent=qa[0];b.onclick=function(){addMsg(qa[0],'me');botSay(typeof qa[1]==='function'?qa[1]():qa[1],900)};$('quick').appendChild(b);});
+  }
+
+  function refresh(){
+    var n=nPassed();
+    $('hello').textContent='Привет, '+NAME()+'!';
+    $('meta').textContent=(state.reg?state.reg.role+' · '+rest(state.reg.rest).name:'');
+    var N=NST();$('xpfill').style.width=((n+(state.attested?1:0))/(N+1)*100)+'%';$('xptext').textContent=state.attested?'Допуск к смене получен':n+' из '+N+' станций';
+    $('b2').classList.toggle('on',n>0);$('b3').classList.toggle('on',n===N);
+    $('pts').textContent=points()+' баллов';
+    renderRoute();renderRating();
+    if(cur)$('chips').querySelectorAll('.chip').forEach(function(b){var s=byId(b.dataset.st);b.innerHTML=s.name+(passed(s.id)?' <span class="ok">✓</span>':'')});
+  }
+
+  // ---------- manager ----------
+  function renderManager(){
+    var r=state.reg,myRest=rest((r&&r.rest)||state.inviteRest||'r1');
+    $('mgrRest').textContent=myRest.name+' · '+myRest.addr;
+    var box=$('reqBox');
+    if(r&&r.status==='pending'){
+      var rs=rest(r.rest);
+      box.innerHTML='<div class="req"><div class="top"><div class="av">'+esc(r.name.charAt(0))+'</div><div><b>'+esc(r.name)+'</b><small>Новая заявка · только что</small></div></div>'+
+        '<div class="dl"><div><span>Должность</span><b>'+esc(r.role)+'</b></div><div><span>Телефон</span><b>'+esc(r.phone)+'</b></div><div><span>Ресторан</span><b>'+esc(rs.name)+'</b></div><div><span>Первая смена</span><b>'+fmtDate(r.date)+'</b></div></div>'+
+        '<div class="row2"><button class="btn small ghost" id="rej" style="flex:1">Отклонить</button><button class="btn small okb" id="apr" style="flex:2">Подтвердить</button></div></div>';
+      $('apr').onclick=function(){state.reg.status='approved';save();haptic('success');toast('Регистрация подтверждена — сотруднику пришло уведомление в Telegram');render();
+        setTimeout(function(){if(state.mode==='mgr'){var tip=document.createElement('div');tip.className='hint';tip.innerHTML='Демо: переключись в режим «Сотрудник» — там уже открылось обучение.';box.appendChild(tip);}},300);};
+      $('rej').onclick=function(){state.reg.status='rejected';save();haptic('warning');toast('Заявка отклонена');render();};
+    }else{
+      box.innerHTML='<div class="card empty">Новых заявок нет.'+(r?'':' Зарегистрируйся в режиме «Сотрудник», и заявка появится здесь.')+'</div>';
+    }
+    var me=r&&r.status==='approved',n=nPassed(),N=NST();
+    var rows='';
+    if(me){
+      var st,cls;
+      if(state.attested){st='Допущен';cls='g';}else if(n===N){st='Ждёт аттестации';cls='b';}else if(n>0){st='Стажёр';cls='g';}else if(MY().some(function(s){return state.scores[s.id]!=null&&state.scores[s.id]<4})){st='Пересдача';cls='r';}else{st='Учится';cls='y';}
+      rows+='<tr style="background:#FDF1D8"><td><b>'+esc(r.name.split(' ')[0])+'</b><br><small style="color:var(--muted)">'+esc(r.role)+'</small></td><td>'+n+'/'+N+'</td><td>'+(n===N&&!state.attested?'<button class="att" id="attBtn">Аттестация</button>':'<span class="pill '+cls+'">'+st+'</span>')+'</td></tr>';
+    }
+    rows+='<tr><td>Мадина<br><small style="color:var(--muted)">Официант</small></td><td>5/5</td><td><span class="pill g">Допущена</span></td></tr><tr><td>Ерлан<br><small style="color:var(--muted)">Бармен</small></td><td>2/3</td><td><span class="pill g">Стажёр</span></td></tr><tr><td>Ольга<br><small style="color:var(--muted)">Хостес</small></td><td>1/3</td><td><span class="pill g">Стажёр</span></td></tr><tr><td>Данияр К.<br><small style="color:var(--muted)">Бармен</small></td><td>0/3</td><td><span class="pill r">Пересдача</span></td></tr>';
+    $('mBody').innerHTML=rows;
+    var ab=$('attBtn');if(ab)ab.onclick=openAtt;
+    $('mReady').textContent=String(3+(state.attested?1:0));
+    $('mLearn').textContent=String(2+(me&&!state.attested?1:0));
+    var base={greet:85,steps:70,sales:55,table:65,beer:60,sea:50,hyg:75};
+    $('stTable').innerHTML=ST.map(function(s){var v=base[s.id]+(me&&passed(s.id)?5:0);return '<tr><td>'+s.name+'</td><td><div class="mini"><div style="width:'+v+'%"></div></div></td><td>'+v+'%</td></tr>'}).join('');
+    drawQR($('qrInvite'),link(myRest.id));
+  }
+  function openAtt(){
+    var role=state.reg.role,list=CHECK[role]||CHECK['Официант'],ch=state.checks;
+    function draw(){
+      var done=list.filter(function(it,i){return ch[i]}).length,pct=Math.round(done/list.length*100);
+      var critOk=list.every(function(it,i){return !it[1]||ch[i]}),ok=pct>=90&&critOk;
+      $('sAtt').innerHTML='<h3>Аттестация на смене</h3><p class="sub">'+esc(state.reg.name)+' · '+esc(role)+'. Наставник отмечает то, что сотрудник сделал правильно на реальной смене.</p>'+
+        list.map(function(it,i){return '<label class="chk"><input type="checkbox" data-i="'+i+'"'+(ch[i]?' checked':'')+'><span>'+esc(it[0])+(it[1]?'<em>критично</em>':'')+'</span></label>'}).join('')+
+        '<div class="attsum"><span>Выполнено: <b>'+pct+'%</b> (нужно 90%)</span><span>Критичные: <b>'+(critOk?'все ✓':'есть ошибки')+'</b></span></div>'+
+        '<div class="row2"><button class="btn small ghost" id="attClose" style="flex:1">Закрыть</button><button class="btn small okb" id="attOk" style="flex:2"'+(ok?'':' disabled')+'>'+(ok?'Допустить к смене':'Пока не готов')+'</button></div>';
+      $('sAtt').querySelectorAll('input').forEach(function(x){x.onchange=function(){ch[x.dataset.i]=x.checked;state.checks=ch;save();draw();}});
+      $('attClose').onclick=function(){$('mAtt').classList.remove('on')};
+      $('attOk').onclick=function(){if(!ok)return;state.attested=true;save();haptic('success');$('mAtt').classList.remove('on');confetti();toast(NAME()+' допущен к самостоятельной смене');renderManager();};
+    }
+    draw();$('mAtt').classList.add('on');
+  }
+  $('mAtt').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on')});
+  $('remind').onclick=function(){toast('Готово: Данияр К. и наставник получили напоминание в Telegram');};
+
+  $('reset').onclick=function(){
+    var inv=state.inviteRest;state=fresh();state.inviteRest=inv;save();sel=null;role=null;startChat.done=false;$('chat').innerHTML='';
+    ['fName','fPhone'].forEach(function(id){$(id).value=''});$('fOk').checked=false;$('fRole').querySelectorAll('button').forEach(function(x){x.classList.remove('on')});
+    cur=MY()[0];renderLesson();render();toast('Демо начато заново');
+  };
+
+  cur=byId(state.cur)||MY()[0];
+  renderLesson();render();
+  if(approved()&&byId(startParam)){state.mode='emp';openStation(startParam);render();}
+  window.addEventListener('hashchange',function(){var h=location.hash.slice(1);if(rest(h)&&!state.reg){state.inviteRest=h;sel=h;save();render();}else if(approved()&&byId(h))openStation(h);});
+})();
+</script>
+</body>
+</html>
