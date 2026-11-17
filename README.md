@@ -18,4 +18,4 @@
 
 1. Опубликуйте папку через GitHub Pages (Settings → Pages → ветка `main`).
 2. Создайте бота в @BotFather и добавьте Mini App со ссылкой на страницу.
-3. Впишите имя бота в `index.html` в строку `var BOT='';` — тогда QR-коды будут открывать уроки прямо в Telegram.
+3. Имя бота указано в `index.html` в строке `var BOT='Training_trainerBot';`: QR-коды открывают уроки прямо в Telegram.
