@@ -118,7 +118,7 @@
         <button class="btn ghost" id="upsellBtn">Предложить допродажу</button>
         <button class="btn ghost" id="repeatBtn">Повторить заказ</button>
         <button class="btn ghost wide" id="idBtn">Попросить документ</button>
-        <button class="btn wide" id="payBtn">Расчёт</button>
+        <button class="btn wide" id="payBtn">Отправить заказ</button>
       </div>
     </div>
     <div class="menu">
@@ -163,16 +163,16 @@
   var PAY={cash:'Наличные',card:'Карта',qr:'QR-оплата'};
 
   var TASKS=[
-    {lv:'Уровень 1 · Простой заказ',say:'«Добрый вечер! Пивные креветки на 500 грамм и бельгийское светлое, большое. Мы за пятым столом. Картой».',hint:'Стол, две позиции, объём пива, оплата картой. Не забудь допродажу и повтор заказа.',
+    {lv:'Уровень 1 · Простой заказ',say:'«Добрый вечер! Пивные креветки на 500 грамм и бельгийское светлое, большое. Мы за пятым столом».',bill:'«Принесите, пожалуйста, счёт. Оплачу картой».',hint:'Стол, две позиции, объём пива. Не забудь допродажу и повтор заказа до отправки.',
       type:'t5',pay:'card',want:[{id:'shr5',qty:1},{id:'blond',sel:{vol:'05'},qty:1}],upsell:{id:'garl',qty:1,reply:'«Гарлики к пиву? Давайте».'}},
-    {lv:'Уровень 2 · Стейк и модификаторы',say:'«Рибай, medium rare, с овощами гриль и перечным соусом. И тёмное большое. Стол 12, оплачу через QR».',hint:'Прожарка, гарнир и соус — частые ошибки новичков. Прожарку уточняем всегда.',
+    {lv:'Уровень 2 · Стейк и модификаторы',say:'«Рибай, medium rare, с овощами гриль и перечным соусом. И тёмное большое. Мы за двенадцатым столом».',bill:'«Можно счёт? Оплачу через QR».',hint:'Прожарка, гарнир и соус — частые ошибки новичков. Прожарку уточняем всегда.',
       type:'t12',pay:'qr',want:[{id:'rib',sel:{done:'mr',side:'veg'},mods:['pep'],qty:1},{id:'brune',sel:{vol:'05'},qty:1}],upsell:{id:'padr',qty:1,reply:'«Перец падрон? Да, попробуем».'}},
-    {lv:'Уровень 3 · Разные прожарки и сдача',say:'«Два стриплойна с картошкой фри: один medium, второй well done. И шесть устриц. Мы за баром. Наличными, вот 30 000».',hint:'Одинаковые стейки с разной прожаркой — отдельными строками. Посчитай сдачу.',
+    {lv:'Уровень 3 · Разные прожарки и сдача',say:'«Два стриплойна с картошкой фри: один medium, второй well done. И шесть устриц. Мы за баром».',bill:'«Счёт, пожалуйста. Наличными, вот 30 000».',hint:'Одинаковые стейки с разной прожаркой — отдельными строками. При расчёте посчитай сдачу.',
       type:'bar',pay:'cash',cash:30000,want:[{id:'strip',sel:{done:'m',side:'fries'},qty:1},{id:'strip',sel:{done:'wd',side:'fries'},qty:1},{id:'oys6',qty:1}],upsell:{id:'chee',qty:1,reply:'«Сырные палочки? Можно».'}},
-    {lv:'Уровень 4 · Проверка возраста',say:'«Мне бельгийское светлое, большое, и креветки на 500. Стол 5, картой». Гость выглядит лет на 19–20.',hint:'Сомневаешься в возрасте — попроси документ до того, как пробивать алкоголь.',
+    {lv:'Уровень 4 · Проверка возраста',say:'«Мне бельгийское светлое, большое, и креветки на 500. Стол 5». Гость выглядит лет на 19–20.',bill:'«Счёт, пожалуйста, картой».',hint:'Сомневаешься в возрасте — попроси документ до того, как пробивать алкоголь.',
       type:'t5',pay:'card',age:20,want:[{id:'na',qty:1},{id:'shr5',qty:1}],upsell:null,afterId:'«Ой, мне 20… Тогда безалкогольное, пожалуйста».'}
   ];
-  var level=0,best={},order,start,tick,upsold,repeated,payInfo,idChecked,alcBeforeId;
+  var level=0,best={},order,start,tick,upsold,repeated,payInfo,idChecked,alcBeforeId,phase;
   try{best=JSON.parse(localStorage.getItem('leffe-pos-best')||'{}')}catch(e){}
 
   function choice(g,k){return g.ch.filter(function(c){return c[0]===k})[0]}
@@ -188,7 +188,7 @@
     $('levels').querySelectorAll('button').forEach(function(b){b.onclick=function(){level=+b.dataset.i;reset()}});
   }
   function reset(){
-    order={type:null,lines:[]};upsold=false;repeated=false;payInfo=null;idChecked=false;alcBeforeId=false;
+    order={type:null,lines:[]};phase='order';upsold=false;repeated=false;payInfo=null;idChecked=false;alcBeforeId=false;
     var t=TASKS[level];$('tLv').textContent=t.lv;$('tSay').textContent=t.say;$('tHint').textContent=t.hint;
     clearInterval(tick);start=null;$('timer').textContent='0:00';
     renderLevels();renderCheck();renderCats(Object.keys(MENU)[0]);
@@ -204,6 +204,8 @@
     $('lines').querySelectorAll('.x').forEach(function(b){b.onclick=function(){order.lines.splice(+b.dataset.i,1);tap();renderCheck()}});
     $('total').textContent=money(total());
     $('payBtn').disabled=!order.lines.length;
+    $('payBtn').textContent=phase==='order'?'Отправить заказ':'Принести счёт и рассчитать';
+    $('lines').querySelectorAll('.x').forEach(function(b){b.style.display=phase==='order'?'':'none'});
     var u=TASKS[level].upsell;
     $('upsellBtn').textContent=upsold?'Допродажа ✓':'Предложить допродажу';
     $('repeatBtn').textContent=repeated?'Заказ повторён ✓':'Повторить заказ';
@@ -215,9 +217,10 @@
     $('items').innerHTML=MENU[c].map(function(i){return '<button class="item" data-id="'+i.id+'"><b>'+esc(i.name)+'</b><span>'+(i.groups&&i.groups[0]===VOL?'от ':'')+money(i.price)+'</span></button>'}).join('');
     $('items').querySelectorAll('.item').forEach(function(b){b.onclick=function(){startTimer();tap();openItem(b.dataset.id)}});
   }
-  function addLine(l){var it=ALL[l.id];if(it.alc&&TASKS[level].age&&!idChecked)alcBeforeId=true;var ex=order.lines.filter(function(x){return sameLine(x,l)})[0];if(ex)ex.qty+=l.qty;else order.lines.push(l);renderCheck();}
+  function addLine(l){if(phase!=='order'){toast('Заказ уже отправлен');return;}var it=ALL[l.id];if(it.alc&&TASKS[level].age&&!idChecked)alcBeforeId=true;var ex=order.lines.filter(function(x){return sameLine(x,l)})[0];if(ex)ex.qty+=l.qty;else order.lines.push(l);renderCheck();}
 
   function openItem(id){
+    if(phase!=='order'){toast('Заказ уже отправлен на кухню и бар');return;}
     var it=ALL[id];
     if(!it.groups&&!it.mods){addLine({id:id,qty:1});toast('+ '+it.name);return;}
     var st={sel:{},mods:[],qty:1};
@@ -242,7 +245,7 @@
   document.querySelectorAll('.modal').forEach(function(m){m.addEventListener('click',function(e){if(e.target===m&&m.id!=='mRes')close()})});
 
   $('upsellBtn').onclick=function(){
-    if(upsold)return;startTimer();var u=TASKS[level].upsell;
+    if(upsold)return;if(phase!=='order'){toast('Допродажу предлагают до отправки заказа');return;}startTimer();var u=TASKS[level].upsell;
     if(!u){upsold=true;toast('Гость: «Спасибо, пока всё»');renderCheck();return;}
     upsold=true;addLine({id:u.id,qty:u.qty});haptic('success');toast('Гость: '+u.reply);renderCheck();
   };
@@ -251,22 +254,23 @@
     toast('Вы повторили заказ — гость: «Да, всё верно»');renderCheck();
   };
   $('idBtn').onclick=function(){
-    if(idChecked)return;startTimer();idChecked=true;var t=TASKS[level];
+    if(idChecked)return;var t=TASKS[level];
+    if(phase!=='order'){toast('Документ проверяют до того, как пробить алкоголь');return;}
+    startTimer();idChecked=true;
     if(t.age){haptic('warning');toast('Удостоверение: гостю '+t.age+' лет. Алкоголь продавать нельзя');$('tSay').textContent=t.afterId;}
     else toast('Документ в порядке, гостю больше 21 года');
     renderCheck();
   };
-
   $('payBtn').onclick=function(){
     var t=TASKS[level],method=null;
+    if(phase==='order'){phase='bill';haptic('success');toast('Заказ отправлен на кухню и бар');setTimeout(function(){$('tLv').textContent=t.lv+' · гость просит счёт';$('tSay').textContent=t.bill;$('tHint').textContent='Способ оплаты гость называет, когда просит счёт.';},900);renderCheck();return;}
     function draw(){
       var tot=total();
       $('sPay').innerHTML='<h3>Расчёт</h3><div class="sub">К оплате: <b>'+money(tot)+'</b></div>'+
-        (!upsold&&t.upsell?'<div class="upsell">Подсказка: ты ещё не предложил гостю допродажу. Можно вернуться и предложить.</div>':'')+
         '<div class="grp">Способ оплаты</div><div class="pay" id="pm">'+Object.keys(PAY).map(function(k){return '<button data-k="'+k+'" class="'+(method===k?'on':'')+'">'+PAY[k]+'</button>'}).join('')+'</div>'+
         '<div class="cash'+(method==='cash'?' on':'')+'"><div class="grp">Гость дал</div><input id="given" inputmode="numeric" placeholder="Сумма, ₸"><div class="quick"><button data-v="20000">20 000</button><button data-v="30000">30 000</button><button data-v="exact">Без сдачи</button></div><div class="change" id="chg"></div><div class="err" id="eCash">Гость дал меньше суммы заказа</div></div>'+
         '<div class="err" id="ePay">Выбери способ оплаты</div>'+
-        '<div class="row"><button class="btn ghost" id="pBack">Назад к заказу</button><button class="btn ok" id="pDone">Закрыть заказ</button></div>';
+        '<div class="row"><button class="btn ghost" id="pBack">Назад</button><button class="btn ok" id="pDone">Закрыть заказ</button></div>';
       $('pm').querySelectorAll('button').forEach(function(b){b.onclick=function(){method=b.dataset.k;tap();draw()}});
       var g=$('given');
       function upd(){var v=parseInt((g.value||'').replace(/\D/g,''))||0;$('eCash').classList.remove('on');$('chg').innerHTML=v?(v>=tot?'Сдача: <b>'+money(v-tot)+'</b>':''):'';}
